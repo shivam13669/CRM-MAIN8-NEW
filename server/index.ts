@@ -1,0 +1,230 @@
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import { handleDemo } from "./routes/demo";
+import {
+  handleRegister,
+  handleLogin,
+  handleForgotPassword,
+  authenticateToken,
+  handleGetProfile,
+  handleChangePassword,
+} from "./routes/auth";
+import {
+  handleGetPatients,
+  handleGetDoctors,
+  handleGetDashboardStats,
+} from "./routes/data";
+import {
+  handleDatabaseDebug,
+  handleClearUsers,
+  handleCreatePendingTable,
+} from "./routes/debug";
+import { handleComplaintFeedbackDebug } from "./routes/debug-complaint-feedback";
+import { handleDatabaseReset } from "./routes/reset";
+import {
+  handleCreateAmbulanceRequest,
+  handleGetAmbulanceRequests,
+  handleUpdateAmbulanceRequest,
+  handleGetPatientAmbulanceRequests,
+  handleAssignAmbulanceRequest,
+  handleUpdateAmbulanceStatus,
+} from "./routes/ambulance";
+import {
+  handleCreateAppointment,
+  handleGetAppointments,
+  handleUpdateAppointment,
+  handleGetPatientAppointments,
+  handleGetAvailableDoctors,
+} from "./routes/appointments";
+import {
+  handleGetPendingRegistrations,
+  handleApprovePendingRegistration,
+  handleRejectPendingRegistration,
+} from "./routes/pending-registrations";
+import {
+  handleGetAllUsers,
+  handleGetUsersByRole,
+  handleSuspendUser,
+  handleReactivateUser,
+  handleDeleteUser,
+  handleAddDoctor,
+} from "./routes/user-management";
+import {
+  handleCreateFeedback,
+  handleGetAllFeedback,
+  handleGetMyFeedback,
+  handleUpdateFeedbackStatus,
+  handleGetFeedbackStats,
+} from "./routes/feedback";
+import {
+  handleSubmitComplaintFeedback,
+  handleGetComplaintFeedback,
+  handleGetAllComplaintFeedback,
+} from "./routes/complaint-feedback";
+import {
+  handleGetNotifications,
+  handleMarkNotificationRead,
+  handleMarkAllNotificationsRead,
+  handleGetPatientNotifications,
+} from "./routes/notifications";
+import {
+  handleGetStaffAppointments,
+  handleGetStaffReports,
+  handleGetStaffFeedback,
+  handleRespondToFeedback,
+  handleGetStaffInventory,
+  handleReportLowStock,
+} from "./routes/staff";
+import { handleCreateTestAmbulanceRequest } from "./routes/create-test-ambulance";
+import { handleTestPatientAmbulanceRequests } from "./routes/test-patient-ambulance";
+import { handleDebugAuth, handleDebugPatientAmbulanceWithAuth } from "./routes/debug-auth";
+import { handleSimpleAmbulanceTest } from "./routes/simple-ambulance-test";
+import { initDatabase } from "./database";
+import { initializeAdmin } from "./admin-init";
+
+export async function createServer() {
+  const app = express();
+
+  // Initialize database
+  try {
+    await initDatabase();
+    // Initialize default admin user
+    await initializeAdmin();
+  } catch (error) {
+    console.error("Database initialization failed:", error);
+  }
+
+  // Middleware
+  app.use(cors());
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+
+  // Example API routes
+  app.get("/api/ping", (_req, res) => {
+    const ping = process.env.PING_MESSAGE ?? "ping";
+    res.json({ message: ping });
+  });
+
+  app.get("/api/demo", handleDemo);
+
+  // Authentication routes
+  app.post("/api/auth/register", handleRegister);
+  app.post("/api/auth/login", handleLogin);
+  app.post("/api/auth/forgot-password", handleForgotPassword);
+  app.get("/api/auth/profile", authenticateToken, handleGetProfile);
+  app.post(
+    "/api/auth/change-password",
+    authenticateToken,
+    handleChangePassword,
+  );
+
+  // Data routes (protected)
+  app.get("/api/patients", authenticateToken, handleGetPatients);
+  app.get("/api/doctors", authenticateToken, handleGetDoctors);
+  app.get("/api/dashboard/stats", authenticateToken, handleGetDashboardStats);
+
+  // Ambulance routes (staff + admin for viewing, patients for creating)
+  app.post("/api/ambulance", authenticateToken, handleCreateAmbulanceRequest);
+  app.get("/api/ambulance", authenticateToken, handleGetAmbulanceRequests);
+  app.get("/api/ambulance/patient", authenticateToken, handleGetPatientAmbulanceRequests);
+  app.post("/api/ambulance/:requestId/assign", authenticateToken, handleAssignAmbulanceRequest);
+  app.put("/api/ambulance/:requestId/status", authenticateToken, handleUpdateAmbulanceStatus);
+  app.put("/api/ambulance/requests/:requestId", authenticateToken, handleUpdateAmbulanceRequest);
+
+  // Appointment routes (doctors + admin for viewing, patients for creating)
+  app.post("/api/appointments", authenticateToken, handleCreateAppointment);
+  app.get("/api/appointments", authenticateToken, handleGetAppointments);
+  app.put(
+    "/api/appointments/:appointmentId",
+    authenticateToken,
+    handleUpdateAppointment,
+  );
+  app.get(
+    "/api/appointments/my-appointments",
+    authenticateToken,
+    handleGetPatientAppointments,
+  );
+  app.get("/api/doctors/available", handleGetAvailableDoctors);
+
+  // Pending registrations (admin only)
+  app.get(
+    "/api/admin/pending-registrations",
+    authenticateToken,
+    handleGetPendingRegistrations,
+  );
+  app.post(
+    "/api/admin/pending-registrations/:registrationId/approve",
+    authenticateToken,
+    handleApprovePendingRegistration,
+  );
+  app.post(
+    "/api/admin/pending-registrations/:registrationId/reject",
+    authenticateToken,
+    handleRejectPendingRegistration,
+  );
+
+  // User management (admin only)
+  app.get("/api/admin/users", authenticateToken, handleGetAllUsers);
+  app.get(
+    "/api/admin/users/:userRole",
+    authenticateToken,
+    handleGetUsersByRole,
+  );
+  app.post(
+    "/api/admin/users/:userId/suspend",
+    authenticateToken,
+    handleSuspendUser,
+  );
+  app.post(
+    "/api/admin/users/:userId/reactivate",
+    authenticateToken,
+    handleReactivateUser,
+  );
+  app.delete("/api/admin/users/:userId", authenticateToken, handleDeleteUser);
+  app.post("/api/admin/add-doctor", authenticateToken, handleAddDoctor);
+
+  // Feedback/Complaints routes
+  app.post("/api/feedback", authenticateToken, handleCreateFeedback);
+  app.get("/api/feedback/my", authenticateToken, handleGetMyFeedback);
+  app.get("/api/admin/feedback", authenticateToken, handleGetAllFeedback);
+  app.put(
+    "/api/admin/feedback/:feedbackId/status",
+    authenticateToken,
+    handleUpdateFeedbackStatus,
+  );
+  app.get("/api/admin/feedback/stats", authenticateToken, handleGetFeedbackStats);
+
+  // Complaint Feedback routes (patient feedback on closed complaints)
+  app.post("/api/complaint/:complaintId/feedback", authenticateToken, handleSubmitComplaintFeedback);
+  app.get("/api/complaint/:complaintId/feedback", authenticateToken, handleGetComplaintFeedback);
+  app.get("/api/admin/complaint-feedback", authenticateToken, handleGetAllComplaintFeedback);
+
+  // Notifications routes
+  app.get("/api/notifications", authenticateToken, handleGetNotifications);
+  app.get("/api/notifications/patient", authenticateToken, handleGetPatientNotifications);
+  app.post("/api/notifications/:notificationId/read", authenticateToken, handleMarkNotificationRead);
+  app.post("/api/notifications/mark-all-read", authenticateToken, handleMarkAllNotificationsRead);
+
+  // Staff-specific routes
+  app.get("/api/staff/appointments", authenticateToken, handleGetStaffAppointments);
+  app.get("/api/staff/reports", authenticateToken, handleGetStaffReports);
+  app.get("/api/staff/feedback", authenticateToken, handleGetStaffFeedback);
+  app.post("/api/staff/feedback/:feedbackId/respond", authenticateToken, handleRespondToFeedback);
+  app.get("/api/staff/inventory", authenticateToken, handleGetStaffInventory);
+  app.post("/api/staff/inventory/:itemId/report-low", authenticateToken, handleReportLowStock);
+
+  // Debug routes (for development only)
+  app.get("/api/debug/database", handleDatabaseDebug);
+  app.get("/api/debug/complaint-feedback", handleComplaintFeedbackDebug);
+  app.delete("/api/debug/clear-users", handleClearUsers);
+  app.post("/api/debug/reset-database", handleDatabaseReset);
+  app.post("/api/debug/create-pending-table", handleCreatePendingTable);
+  app.post("/api/debug/create-test-ambulance", handleCreateTestAmbulanceRequest);
+  app.get("/api/debug/test-patient-ambulance", handleTestPatientAmbulanceRequests);
+  app.get("/api/debug/auth", authenticateToken, handleDebugAuth);
+  app.get("/api/debug/patient-ambulance-with-auth", authenticateToken, handleDebugPatientAmbulanceWithAuth);
+  app.get("/api/debug/simple-ambulance-test", handleSimpleAmbulanceTest);
+
+  return app;
+}
