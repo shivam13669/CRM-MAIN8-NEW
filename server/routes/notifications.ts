@@ -26,21 +26,26 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
     const notifications: Notification[] = [];
 
     // Get recent appointments (last 24 hours)
-    const appointmentsResult = db.exec(`
-      SELECT 
-        a.id,
-        a.created_at,
-        a.reason,
-        customer.full_name as customer_name,
-        doctor.full_name as doctor_name
-      FROM appointments a
-      JOIN users customer ON a.customer_user_id = customer.id
-      LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
-      WHERE a.created_at >= datetime('now', '-24 hours')
-      AND a.status = 'pending'
-      ORDER BY a.created_at DESC
-      LIMIT 10
-    `);
+    let appointmentsResult: any = [];
+    try {
+      appointmentsResult = db.exec(`
+        SELECT
+          a.id,
+          a.created_at,
+          a.reason,
+          customer.full_name as customer_name,
+          doctor.full_name as doctor_name
+        FROM appointments a
+        JOIN users customer ON a.customer_user_id = customer.id
+        LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
+        WHERE a.status = 'pending'
+        ORDER BY a.created_at DESC
+        LIMIT 10
+      `);
+    } catch (error) {
+      console.error("Error fetching appointments for notifications:", error);
+      appointmentsResult = [];
+    }
 
     if (appointmentsResult.length > 0) {
       const columns = appointmentsResult[0].columns;
