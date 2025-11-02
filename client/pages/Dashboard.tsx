@@ -23,12 +23,12 @@ export default function Dashboard() {
 
   const stats = [
     {
-      title: "Total Patients",
+      title: "Total Customers",
       value: "2,543",
       change: "+12%",
       changeType: "positive" as const,
       icon: Users,
-      description: "Active patients in system",
+      description: "Active customers in system",
     },
     {
       title: "Appointments Today",
@@ -58,31 +58,31 @@ export default function Dashboard() {
 
   const recentAppointments = [
     {
-      patient: "Sarah Johnson",
+      customer: "Sarah Johnson",
       doctor: "Dr. Smith",
       time: "9:00 AM",
       status: "confirmed",
     },
     {
-      patient: "Michael Brown",
+      customer: "Michael Brown",
       doctor: "Dr. Wilson",
       time: "10:30 AM",
       status: "pending",
     },
     {
-      patient: "Emily Davis",
+      customer: "Emily Davis",
       doctor: "Dr. Jones",
       time: "2:00 PM",
       status: "confirmed",
     },
     {
-      patient: "James Miller",
+      customer: "James Miller",
       doctor: "Dr. Taylor",
       time: "3:30 PM",
       status: "cancelled",
     },
     {
-      patient: "Lisa Garcia",
+      customer: "Lisa Garcia",
       doctor: "Dr. Anderson",
       time: "4:00 PM",
       status: "confirmed",
