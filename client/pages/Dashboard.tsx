@@ -190,7 +190,7 @@ export default function Dashboard() {
                     >
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">
-                          {appointment.patient}
+                          {appointment.customer}
                         </div>
                         <div className="text-sm text-gray-500">
                           with {appointment.doctor}
@@ -251,13 +251,13 @@ export default function Dashboard() {
               <CardContent className="space-y-3">
                 <button
                   className="w-full p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                  onClick={() => navigate("/patients")}
+                  onClick={() => navigate("/customers")}
                 >
                   <div className="font-medium text-gray-900">
-                    Add New Patient
+                    Add New Customer
                   </div>
                   <div className="text-sm text-gray-500">
-                    Register a new patient
+                    Register a new customer
                   </div>
                 </button>
                 <button
