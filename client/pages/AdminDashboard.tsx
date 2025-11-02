@@ -662,7 +662,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-center">
               <div>
                 <div className="text-2xl font-bold text-primary">
-                  {data?.patients.length || 0}
+                  {data?.customers.length || 0}
                 </div>
                 <div className="text-sm text-gray-500">Total Patients</div>
               </div>
