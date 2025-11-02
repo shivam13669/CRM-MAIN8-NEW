@@ -1,25 +1,25 @@
 import { RequestHandler } from "express";
-import { getAllPatients, getAllDoctors } from '../database';
+import { getAllCustomers, getAllDoctors } from '../database';
 
-// Get all patients (for doctors and admin)
-export const handleGetPatients: RequestHandler = async (req, res) => {
+// Get all customers (for doctors and admin)
+export const handleGetCustomers: RequestHandler = async (req, res) => {
   try {
     const { role } = (req as any).user;
     
-    // Only doctors and admin can view all patients
+    // Only doctors and admin can view all customers
     if (role !== 'doctor' && role !== 'admin') {
-      return res.status(403).json({ error: 'Unauthorized to view patients list' });
+      return res.status(403).json({ error: 'Unauthorized to view customers list' });
     }
 
-    const patients = await getAllPatients();
+    const customers = await getAllCustomers();
     
     res.json({
-      patients,
-      total: patients.length
+      customers,
+      total: customers.length
     });
   } catch (error) {
-    console.error('Get patients error:', error);
-    res.status(500).json({ error: 'Internal server error while fetching patients' });
+    console.error('Get customers error:', error);
+    res.status(500).json({ error: 'Internal server error while fetching customers' });
   }
 };
 
@@ -43,11 +43,11 @@ export const handleGetDashboardStats: RequestHandler = async (req, res) => {
   try {
     const { role } = (req as any).user;
     
-    const patients = await getAllPatients();
+    const customers = await getAllCustomers();
     const doctors = await getAllDoctors();
     
     const stats = {
-      totalPatients: patients.length,
+      totalCustomers: customers.length,
       totalDoctors: doctors.length,
       todayAppointments: 0, // This would be calculated from appointments table
       pendingReports: 0 // This would be calculated from reports table
