@@ -180,11 +180,11 @@ function createTables(): void {
     db.run(`
       CREATE TABLE IF NOT EXISTS ambulance_requests (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        patient_user_id INTEGER NOT NULL,
+        customer_user_id INTEGER NOT NULL,
         pickup_address TEXT NOT NULL,
         destination_address TEXT NOT NULL,
         emergency_type TEXT NOT NULL,
-        patient_condition TEXT,
+        customer_condition TEXT,
         contact_number TEXT NOT NULL,
         status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'assigned', 'on_the_way', 'completed', 'cancelled')),
         priority TEXT DEFAULT 'normal' CHECK(priority IN ('low', 'normal', 'high', 'critical')),
@@ -192,7 +192,7 @@ function createTables(): void {
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (patient_user_id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (customer_user_id) REFERENCES users (id) ON DELETE CASCADE,
         FOREIGN KEY (assigned_staff_id) REFERENCES users (id) ON DELETE SET NULL
       )
     `);
