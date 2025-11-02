@@ -3,7 +3,7 @@ import { db, saveDatabase } from "../database";
 
 export interface FeedbackComplaint {
   id?: number;
-  patient_user_id: number;
+  customer_user_id: number;
   type: "feedback" | "complaint";
   subject: string;
   description: string;
@@ -127,7 +127,7 @@ export const handleCreateFeedback: RequestHandler = async (req, res) => {
     // Insert feedback/complaint
     const result = db.exec(`
       INSERT INTO feedback_complaints
-      (patient_user_id, type, subject, description, category, priority, rating, status, created_at)
+      (customer_user_id, type, subject, description, category, priority, rating, status, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
     `, [userId, type, subject, description, mappedCategory, mappedPriority, rating || null, istTimestamp]);
 
@@ -165,12 +165,12 @@ export const handleGetAllFeedback: RequestHandler = async (req, res) => {
     const result = db.exec(`
       SELECT 
         fc.*,
-        u.full_name as patient_name,
-        u.email as patient_email,
-        u.phone as patient_phone,
+        u.full_name as customer_name,
+        u.email as customer_email,
+        u.phone as customer_phone,
         admin_u.full_name as admin_name
       FROM feedback_complaints fc
-      JOIN users u ON fc.patient_user_id = u.id
+      JOIN users u ON fc.customer_user_id = u.id
       LEFT JOIN users admin_u ON fc.admin_user_id = admin_u.id
       ORDER BY fc.created_at DESC
     `);
@@ -201,7 +201,7 @@ export const handleGetAllFeedback: RequestHandler = async (req, res) => {
   }
 };
 
-// Get patient's own feedback/complaints
+// Get customer's own feedback/complaints
 export const handleGetMyFeedback: RequestHandler = async (req, res) => {
   try {
     const { userId } = (req as any).user;
@@ -209,7 +209,7 @@ export const handleGetMyFeedback: RequestHandler = async (req, res) => {
     const result = db.exec(`
       SELECT *
       FROM feedback_complaints
-      WHERE patient_user_id = ?
+      WHERE customer_user_id = ?
       ORDER BY created_at DESC
     `, [userId]);
 
