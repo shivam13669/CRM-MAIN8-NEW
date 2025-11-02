@@ -107,7 +107,7 @@ export default function CustomersManagement() {
     }
   };
 
-  const filteredPatients = patients.filter(patient => {
+  const filteredCustomers = customers.filter(customer => {
     // Search filter
     const matchesSearch = patient.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
