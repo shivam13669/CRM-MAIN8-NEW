@@ -246,18 +246,18 @@ function createTables(): void {
       )
     `);
 
-    // Patient feedback on closed complaints - for rating admin response
+    // Customer feedback on closed complaints - for rating admin response
     db.run(`
       CREATE TABLE IF NOT EXISTS complaint_feedback (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         complaint_id INTEGER NOT NULL,
-        patient_user_id INTEGER NOT NULL,
+        customer_user_id INTEGER NOT NULL,
         rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
         feedback_text TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (complaint_id) REFERENCES feedback_complaints (id) ON DELETE CASCADE,
-        FOREIGN KEY (patient_user_id) REFERENCES users (id) ON DELETE CASCADE,
-        UNIQUE(complaint_id, patient_user_id)
+        FOREIGN KEY (customer_user_id) REFERENCES users (id) ON DELETE CASCADE,
+        UNIQUE(complaint_id, customer_user_id)
       )
     `);
 
