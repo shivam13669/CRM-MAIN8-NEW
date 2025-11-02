@@ -221,7 +221,6 @@ export const handleGetCustomerAmbulanceRequests: RequestHandler = async (
         ar.pickup_address,
         ar.destination_address,
         ar.emergency_type,
-        ar.customer_condition,
         ar.contact_number,
         ar.status,
         ar.priority,
