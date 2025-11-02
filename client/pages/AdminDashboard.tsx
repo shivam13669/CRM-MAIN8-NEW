@@ -76,7 +76,7 @@ export default function AdminDashboard() {
         })
       ]);
 
-      const patients = patientsRes.ok ? (await patientsRes.json()).patients : [];
+      const customers = customersRes.ok ? (await customersRes.json()).customers : [];
       const doctors = doctorsRes.ok ? (await doctorsRes.json()).doctors : [];
       const staff = staffRes.ok ? (await staffRes.json()).users : [];
       const appointments = appointmentsRes.ok ? (await appointmentsRes.json()).appointments : [];
