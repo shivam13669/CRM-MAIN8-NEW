@@ -3,7 +3,7 @@ import { db } from '../database';
 
 export interface Appointment {
   id?: number;
-  patient_user_id: number;
+  customer_user_id: number;
   doctor_user_id?: number;
   appointment_date: string;
   appointment_time: string;
@@ -14,13 +14,13 @@ export interface Appointment {
   created_at?: string;
 }
 
-// Create appointment (for patients)
+// Create appointment (for customers)
 export const handleCreateAppointment: RequestHandler = async (req, res) => {
   try {
     const { userId, role } = (req as any).user;
     
-    if (role !== 'patient') {
-      return res.status(403).json({ error: 'Only patients can book appointments' });
+    if (role !== 'customer') {
+      return res.status(403).json({ error: 'Only customers can book appointments' });
     }
 
     const {
@@ -46,7 +46,7 @@ export const handleCreateAppointment: RequestHandler = async (req, res) => {
     // Insert appointment
     db.run(`
       INSERT INTO appointments (
-        patient_user_id, doctor_user_id, appointment_date, appointment_time,
+        customer_user_id, doctor_user_id, appointment_date, appointment_time,
         reason, symptoms, status, created_at
       ) VALUES (?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
     `, [
@@ -62,7 +62,7 @@ export const handleCreateAppointment: RequestHandler = async (req, res) => {
     const result = db.exec("SELECT last_insert_rowid() as id");
     const appointmentId = result[0].values[0][0];
 
-    console.log(`📅 Appointment created: ID ${appointmentId} for patient ${userId}`);
+    console.log(`📅 Appointment created: ID ${appointmentId} for customer ${userId}`);
 
     res.status(201).json({
       message: 'Appointment booked successfully',
@@ -93,12 +93,12 @@ export const handleGetAppointments: RequestHandler = async (req, res) => {
         a.symptoms,
         a.notes,
         a.created_at,
-        patient.full_name as patient_name,
-        patient.email as patient_email,
-        patient.phone as patient_phone,
+        customer.full_name as customer_name,
+        customer.email as customer_email,
+        customer.phone as customer_phone,
         doctor.full_name as doctor_name
       FROM appointments a
-      JOIN users patient ON a.patient_user_id = patient.id
+      JOIN users customer ON a.customer_user_id = customer.id
       LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
     `;
 
@@ -180,13 +180,13 @@ export const handleUpdateAppointment: RequestHandler = async (req, res) => {
   }
 };
 
-// Get patient's own appointments
-export const handleGetPatientAppointments: RequestHandler = async (req, res) => {
+// Get customer's own appointments
+export const handleGetCustomerAppointments: RequestHandler = async (req, res) => {
   try {
     const { userId, role } = (req as any).user;
     
-    if (role !== 'patient') {
-      return res.status(403).json({ error: 'Only patients can view their own appointments' });
+    if (role !== 'customer') {
+      return res.status(403).json({ error: 'Only customers can view their own appointments' });
     }
 
     const result = db.exec(`
@@ -196,7 +196,7 @@ export const handleGetPatientAppointments: RequestHandler = async (req, res) => 
         doctor.phone as doctor_phone
       FROM appointments a
       LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
-      WHERE a.patient_user_id = ?
+      WHERE a.customer_user_id = ?
       ORDER BY a.appointment_date DESC, a.appointment_time DESC
     `, [userId]);
 
@@ -219,7 +219,7 @@ export const handleGetPatientAppointments: RequestHandler = async (req, res) => 
       total: appointments.length
     });
   } catch (error) {
-    console.error('Get patient appointments error:', error);
+    console.error('Get customer appointments error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
