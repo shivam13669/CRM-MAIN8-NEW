@@ -179,22 +179,27 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
     }
 
     // Get recent ambulance requests (last 12 hours)
-    const ambulanceResult = db.exec(`
-      SELECT
-        ar.id,
-        ar.emergency_type,
-        ar.customer_condition,
-        ar.priority,
-        ar.status,
-        ar.created_at,
-        ar.updated_at,
-        customer.full_name as customer_name
-      FROM ambulance_requests ar
-      JOIN users customer ON ar.customer_user_id = customer.id
-      WHERE ar.created_at >= datetime('now', '-12 hours') OR ar.updated_at >= datetime('now', '-12 hours')
-      ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
-      LIMIT 10
-    `);
+    let ambulanceResult: any = [];
+    try {
+      ambulanceResult = db.exec(`
+        SELECT
+          ar.id,
+          ar.emergency_type,
+          ar.customer_condition,
+          ar.priority,
+          ar.status,
+          ar.created_at,
+          ar.updated_at,
+          customer.full_name as customer_name
+        FROM ambulance_requests ar
+        JOIN users customer ON ar.customer_user_id = customer.id
+        ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
+        LIMIT 10
+      `);
+    } catch (error) {
+      console.error("Error fetching ambulance requests for notifications:", error);
+      ambulanceResult = [];
+    }
 
     if (ambulanceResult.length > 0) {
       const columns = ambulanceResult[0].columns;
