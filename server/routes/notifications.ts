@@ -125,22 +125,27 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
     }
 
     // Get recent feedback/complaints (last 48 hours)
-    const complaintsResult = db.exec(`
-      SELECT 
-        fc.id,
-        fc.type,
-        fc.subject,
-        fc.category,
-        fc.priority,
-        fc.status,
-        fc.created_at,
-        customer.full_name as customer_name
-      FROM feedback_complaints fc
-      JOIN users customer ON fc.customer_user_id = customer.id
-      WHERE fc.created_at >= datetime('now', '-48 hours')
-      ORDER BY fc.created_at DESC
-      LIMIT 10
-    `);
+    let complaintsResult: any = [];
+    try {
+      complaintsResult = db.exec(`
+        SELECT
+          fc.id,
+          fc.type,
+          fc.subject,
+          fc.category,
+          fc.priority,
+          fc.status,
+          fc.created_at,
+          customer.full_name as customer_name
+        FROM feedback_complaints fc
+        JOIN users customer ON fc.customer_user_id = customer.id
+        ORDER BY fc.created_at DESC
+        LIMIT 10
+      `);
+    } catch (error) {
+      console.error("Error fetching feedback for notifications:", error);
+      complaintsResult = [];
+    }
 
     if (complaintsResult.length > 0) {
       const columns = complaintsResult[0].columns;
