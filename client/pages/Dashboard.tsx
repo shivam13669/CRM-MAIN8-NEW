@@ -301,7 +301,7 @@ export default function Dashboard() {
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">94%</div>
                 <div className="text-sm text-gray-500">
-                  Patient Satisfaction
+                  Customer Satisfaction
                 </div>
               </div>
               <div className="text-center">
