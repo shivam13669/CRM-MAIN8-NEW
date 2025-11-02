@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PatientLayout } from "../components/PatientLayout";
+import { CustomerLayout } from "../components/CustomerLayout";
 import { Layout } from "../components/Layout";
 import { DoctorLayout } from "../components/DoctorLayout";
 import { StaffLayout } from "../components/StaffLayout";
