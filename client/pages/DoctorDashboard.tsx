@@ -18,7 +18,7 @@ export default function DoctorDashboard() {
 
   const stats = [
     {
-      title: 'Total Patients',
+      title: 'Total Customers',
       value: '156',
       change: '+8',
       color: 'bg-blue-500',
@@ -48,17 +48,17 @@ export default function DoctorDashboard() {
   ];
 
   const todayAppointments = [
-    { patient: 'John Smith', time: '9:00 AM', type: 'Consultation', status: 'confirmed' },
-    { patient: 'Sarah Wilson', time: '10:30 AM', type: 'Follow-up', status: 'confirmed' },
-    { patient: 'Mike Johnson', time: '2:00 PM', type: 'Check-up', status: 'pending' },
-    { patient: 'Lisa Davis', time: '3:30 PM', type: 'Consultation', status: 'confirmed' },
-    { patient: 'Tom Brown', time: '4:00 PM', type: 'Follow-up', status: 'confirmed' }
+    { customer: 'John Smith', time: '9:00 AM', type: 'Consultation', status: 'confirmed' },
+    { customer: 'Sarah Wilson', time: '10:30 AM', type: 'Follow-up', status: 'confirmed' },
+    { customer: 'Mike Johnson', time: '2:00 PM', type: 'Check-up', status: 'pending' },
+    { customer: 'Lisa Davis', time: '3:30 PM', type: 'Consultation', status: 'confirmed' },
+    { customer: 'Tom Brown', time: '4:00 PM', type: 'Follow-up', status: 'confirmed' }
   ];
 
   const recentMessages = [
-    { patient: 'John Smith', message: 'Experiencing mild pain after medication', time: '2 hours ago', unread: true },
-    { patient: 'Sarah Wilson', message: 'Thank you for the treatment', time: '5 hours ago', unread: false },
-    { patient: 'Mike Johnson', message: 'Question about diet restrictions', time: '1 day ago', unread: true }
+    { customer: 'John Smith', message: 'Experiencing mild pain after medication', time: '2 hours ago', unread: true },
+    { customer: 'Sarah Wilson', message: 'Thank you for the treatment', time: '5 hours ago', unread: false },
+    { customer: 'Mike Johnson', message: 'Question about diet restrictions', time: '1 day ago', unread: true }
   ];
 
   const getStatusColor = (status: string) => {
@@ -77,7 +77,7 @@ export default function DoctorDashboard() {
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white">
           <h1 className="text-3xl font-bold mb-2">Welcome back, Dr. {userName}!</h1>
           <p className="text-blue-100">
-            Manage your patients, review appointments, and provide excellent healthcare services.
+            Manage your customers, review appointments, and provide excellent healthcare services.
           </p>
         </div>
 
