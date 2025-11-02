@@ -202,7 +202,7 @@ export default function DoctorDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
               <div>
                 <div className="text-2xl font-bold text-blue-600">42</div>
-                <div className="text-sm text-gray-500">Patients Treated</div>
+                <div className="text-sm text-gray-500">Customers Served</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-green-600">38</div>
@@ -214,7 +214,7 @@ export default function DoctorDashboard() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-orange-600">95%</div>
-                <div className="text-sm text-gray-500">Patient Satisfaction</div>
+                <div className="text-sm text-gray-500">Customer Satisfaction</div>
               </div>
             </div>
           </CardContent>
