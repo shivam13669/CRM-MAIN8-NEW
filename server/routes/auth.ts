@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import {
   createUser,
-  createPatient,
+  createCustomer,
   createDoctor,
   getUserByEmail,
   getUserByPhone,
@@ -11,7 +11,7 @@ import {
   createPendingRegistration,
   getPendingRegistrationByEmail,
   User,
-  Patient,
+  Customer,
   Doctor,
   PendingRegistration,
 } from "../database";
@@ -25,10 +25,10 @@ interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  role: "admin" | "doctor" | "patient" | "staff";
+  role: "admin" | "doctor" | "customer" | "staff";
   full_name: string;
   phone?: string;
-  // Patient specific fields
+  // Customer specific fields
   date_of_birth?: string;
   gender?: "male" | "female" | "other";
   blood_group?: string;
@@ -71,7 +71,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
       role,
       full_name,
       phone,
-      // Patient fields
+      // Customer fields
       date_of_birth,
       gender,
       blood_group,
@@ -198,8 +198,8 @@ export const handleRegister: RequestHandler = async (req, res) => {
             "Failed to create pending registration: " + pendingError.message,
         });
       }
-    } else if (role === "patient") {
-      // Direct registration for patients (as before)
+    } else if (role === "customer") {
+      // Direct registration for customers (as before)
       const user: User = {
         username,
         email,
@@ -211,8 +211,8 @@ export const handleRegister: RequestHandler = async (req, res) => {
 
       const userId = await createUser(user);
 
-      // Create patient record
-      const patient: Patient = {
+      // Create customer record
+      const customer: Customer = {
         user_id: userId,
         date_of_birth,
         gender,
@@ -228,7 +228,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
         insurance_policy_number,
         occupation,
       };
-      createPatient(patient);
+      createCustomer(customer);
 
       // Generate JWT token for immediate login
       const token = jwt.sign({ userId, email, role, full_name }, JWT_SECRET, {
@@ -236,7 +236,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
       });
 
       res.status(201).json({
-        message: "Patient registered successfully",
+        message: "Customer registered successfully",
         token,
         user: {
           id: userId,
