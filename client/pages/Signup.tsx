@@ -91,7 +91,7 @@ export default function Signup() {
         username: formData.email.split("@")[0], // Use email prefix as username
         email: formData.email,
         password: formData.password,
-        role: formData.role as "admin" | "doctor" | "patient" | "staff",
+        role: formData.role as "admin" | "doctor" | "customer" | "staff",
         full_name: formData.name,
         phone: formData.phone,
         // Doctor specific fields
@@ -118,13 +118,13 @@ export default function Signup() {
           );
           navigate("/login");
         } else {
-          // Direct login for patients
+          // Direct login for customers
           authUtils.setAuthData(response.data.token, response.data.user);
 
           // Navigate based on role
           switch (response.data.user.role) {
-            case "patient":
-              navigate("/patient-dashboard");
+            case "customer":
+              navigate("/customer-dashboard");
               break;
             default:
               navigate("/dashboard");
@@ -290,8 +290,8 @@ export default function Signup() {
                   <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="patient">
-                    Patient - Book appointments, request services
+                  <SelectItem value="customer">
+                    Customer - Book appointments, request services
                   </SelectItem>
                   <SelectItem value="doctor">
                     Doctor - Manage patients and reports
