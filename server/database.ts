@@ -439,7 +439,7 @@ export async function createUser(user: User): Promise<number> {
 
 export function getUserByEmail(email: string): User | undefined {
   try {
-    console.log(`🔍 Checking email: ${email}`);
+    console.log(`���� Checking email: ${email}`);
 
     if (!db) {
       console.log("❌ Database not initialized");
@@ -683,25 +683,25 @@ export function createDoctor(doctor: Doctor): number {
   }
 }
 
-// Get all patients (for doctors/admin)
-export function getAllPatients(): any[] {
+// Get all customers (for doctors/admin)
+export function getAllCustomers(): any[] {
   try {
     const result = db.exec(`
-      SELECT 
+      SELECT
         u.id as user_id,
         u.full_name,
         u.email,
         u.phone,
-        p.date_of_birth,
-        p.gender,
-        p.blood_group,
-        p.address,
-        p.medical_conditions,
-        p.height,
-        p.weight,
-        p.created_at
+        c.date_of_birth,
+        c.gender,
+        c.blood_group,
+        c.address,
+        c.medical_conditions,
+        c.height,
+        c.weight,
+        c.created_at
       FROM users u
-      JOIN patients p ON u.id = p.user_id
+      JOIN customers c ON u.id = c.user_id
       ORDER BY u.full_name
     `);
 
@@ -712,18 +712,18 @@ export function getAllPatients(): any[] {
     const columns = result[0].columns;
     const rows = result[0].values;
 
-    const patients = rows.map((row) => {
-      const patient: any = {};
+    const customers = rows.map((row) => {
+      const customer: any = {};
       columns.forEach((col, index) => {
-        patient[col] = row[index];
+        customer[col] = row[index];
       });
-      return patient;
+      return customer;
     });
 
-    console.log(`📊 Retrieved ${patients.length} patients from SQLite`);
-    return patients;
+    console.log(`📊 Retrieved ${customers.length} customers from SQLite`);
+    return customers;
   } catch (error) {
-    console.error("❌ Error getting patients:", error);
+    console.error("❌ Error getting customers:", error);
     return [];
   }
 }
