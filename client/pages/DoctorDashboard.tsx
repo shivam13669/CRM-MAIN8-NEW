@@ -122,7 +122,7 @@ export default function DoctorDashboard() {
                   {todayAppointments.map((appointment, index) => (
                     <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                       <div className="flex-1">
-                        <div className="font-medium text-gray-900">{appointment.patient}</div>
+                        <div className="font-medium text-gray-900">{appointment.customer}</div>
                         <div className="text-sm text-gray-500">{appointment.type}</div>
                       </div>
                       <div className="flex items-center space-x-3">
@@ -152,7 +152,7 @@ export default function DoctorDashboard() {
                 {recentMessages.map((message, index) => (
                   <div key={index} className={`p-3 border rounded-lg ${message.unread ? 'bg-blue-50 border-blue-200' : 'bg-gray-50'}`}>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium text-sm">{message.patient}</span>
+                      <span className="font-medium text-sm">{message.customer}</span>
                       <span className="text-xs text-gray-500">{message.time}</span>
                     </div>
                     <p className="text-sm text-gray-700">{message.message}</p>
@@ -174,8 +174,8 @@ export default function DoctorDashboard() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <button className="w-full p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="font-medium text-gray-900">Add Patient Notes</div>
-                  <div className="text-sm text-gray-500">Update patient records</div>
+                  <div className="font-medium text-gray-900">Add Customer Notes</div>
+                  <div className="text-sm text-gray-500">Update customer records</div>
                 </button>
                 <button className="w-full p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="font-medium text-gray-900">Schedule Follow-up</div>
