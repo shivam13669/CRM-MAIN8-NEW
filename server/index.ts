@@ -11,7 +11,7 @@ import {
   handleChangePassword,
 } from "./routes/auth";
 import {
-  handleGetPatients,
+  handleGetCustomers,
   handleGetDoctors,
   handleGetDashboardStats,
 } from "./routes/data";
@@ -26,7 +26,7 @@ import {
   handleCreateAmbulanceRequest,
   handleGetAmbulanceRequests,
   handleUpdateAmbulanceRequest,
-  handleGetPatientAmbulanceRequests,
+  handleGetCustomerAmbulanceRequests,
   handleAssignAmbulanceRequest,
   handleUpdateAmbulanceStatus,
 } from "./routes/ambulance";
@@ -34,7 +34,7 @@ import {
   handleCreateAppointment,
   handleGetAppointments,
   handleUpdateAppointment,
-  handleGetPatientAppointments,
+  handleGetCustomerAppointments,
   handleGetAvailableDoctors,
 } from "./routes/appointments";
 import {
@@ -66,7 +66,7 @@ import {
   handleGetNotifications,
   handleMarkNotificationRead,
   handleMarkAllNotificationsRead,
-  handleGetPatientNotifications,
+  handleGetCustomerNotifications,
 } from "./routes/notifications";
 import {
   handleGetStaffAppointments,
