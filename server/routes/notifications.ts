@@ -409,25 +409,31 @@ export const handleGetCustomerNotifications: RequestHandler = async (
     }
 
     // Get customer's appointments (last 14 days)
-    const appointmentsResult = db.exec(
-      `
-      SELECT
-        a.id,
-        a.appointment_date,
-        a.appointment_time,
-        a.status,
-        a.reason,
-        a.created_at,
-        a.updated_at,
-        doctor.full_name as doctor_name
-      FROM appointments a
-      LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
-      WHERE a.customer_user_id = ? AND a.created_at >= datetime('now', '-14 days')
-      ORDER BY a.created_at DESC
-      LIMIT 10
-    `,
-      [userId],
-    );
+    let appointmentsResult: any = [];
+    try {
+      appointmentsResult = db.exec(
+        `
+        SELECT
+          a.id,
+          a.appointment_date,
+          a.appointment_time,
+          a.status,
+          a.reason,
+          a.created_at,
+          a.updated_at,
+          doctor.full_name as doctor_name
+        FROM appointments a
+        LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
+        WHERE a.customer_user_id = ?
+        ORDER BY a.created_at DESC
+        LIMIT 10
+      `,
+        [userId],
+      );
+    } catch (error) {
+      console.error("Error fetching customer appointments for notifications:", error);
+      appointmentsResult = [];
+    }
 
     if (appointmentsResult.length > 0) {
       const columns = appointmentsResult[0].columns;
