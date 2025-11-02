@@ -97,14 +97,14 @@ export default function AdminDashboard() {
       ).length;
 
       setData({
-        patients,
+        customers,
         doctors,
         staff,
         appointments,
         ambulanceRequests,
         feedback,
         stats: {
-          totalPatients: patients.length,
+          totalCustomers: customers.length,
           totalDoctors: doctors.length,
           totalStaff: staff.length,
           todayAppointments,
