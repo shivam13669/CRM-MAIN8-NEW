@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 
-interface PatientLayoutProps {
+interface CustomerLayoutProps {
   children: React.ReactNode;
 }
 
@@ -34,18 +34,18 @@ interface Notification {
 }
 
 const sidebarItems = [
-  { icon: Activity, label: "Dashboard", path: "/patient-dashboard" },
+  { icon: Activity, label: "Dashboard", path: "/customer-dashboard" },
   { icon: Calendar, label: "Book Appointment", path: "/book-appointment" },
   { icon: Truck, label: "Ambulance Service", path: "/request-ambulance" },
   { icon: Truck, label: "My Ambulance Requests", path: "/my-ambulance-requests" },
   { icon: MessageSquare, label: "Feedback & Complaints", path: "/feedback" },
   { icon: FileText, label: "Medical Reports", path: "/medical-reports" },
   { icon: CreditCard, label: "Payments", path: "/payments" },
-  { icon: User, label: "Profile", path: "/patient-profile" },
+  { icon: User, label: "Profile", path: "/customer-profile" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
-export function PatientLayout({ children }: PatientLayoutProps) {
+export function CustomerLayout({ children }: CustomerLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -53,7 +53,7 @@ export function PatientLayout({ children }: PatientLayoutProps) {
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
-  const userName = localStorage.getItem("userName") || "Patient";
+  const userName = localStorage.getItem("userName") || "Customer";
 
   // Fetch notifications from API
   const fetchNotifications = async () => {
@@ -62,7 +62,7 @@ export function PatientLayout({ children }: PatientLayoutProps) {
       const token = localStorage.getItem('authToken');
       if (!token) return;
 
-      const response = await fetch('/api/notifications/patient', {
+      const response = await fetch('/api/notifications/customer', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
