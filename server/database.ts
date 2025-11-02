@@ -47,7 +47,7 @@ export async function initDatabase(): Promise<void> {
         await createPendingRegistrationsTable();
       }
     } catch (error) {
-      console.log("���️ Table verification failed, creating manually...");
+      console.log("⚠️ Table verification failed, creating manually...");
       await createPendingRegistrationsTable();
     }
   } catch (error) {
@@ -1086,7 +1086,7 @@ export async function deleteUser(userId: number): Promise<boolean> {
     }
 
     // Delete related records first
-    db.run("DELETE FROM patients WHERE user_id = ?", [userId]);
+    db.run("DELETE FROM customers WHERE user_id = ?", [userId]);
     db.run("DELETE FROM doctors WHERE user_id = ?", [userId]);
 
     // Delete the user
