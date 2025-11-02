@@ -217,7 +217,7 @@ export default function AdminDashboard() {
     },
   ];
 
-  const recentPatients = data?.patients.slice(0, 5) || [];
+  const recentPatients = data?.customers.slice(0, 5) || [];
   const recentDoctors = data?.doctors.slice(0, 5) || [];
   const recentStaff = data?.staff.slice(0, 5) || [];
   const recentAppointments = data?.appointments.slice(0, 5) || [];
