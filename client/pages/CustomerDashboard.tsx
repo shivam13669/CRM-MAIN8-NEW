@@ -1,4 +1,4 @@
-import { PatientLayout } from "../components/PatientLayout";
+import { CustomerLayout } from "../components/CustomerLayout";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -23,8 +23,8 @@ import {
 } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 
-export default function PatientDashboard() {
-  const userName = localStorage.getItem("userName") || "Patient";
+export default function CustomerDashboard() {
+  const userName = localStorage.getItem("userName") || "Customer";
   const navigate = useNavigate();
 
   const quickActions = [
@@ -122,7 +122,7 @@ export default function PatientDashboard() {
   };
 
   return (
-    <PatientLayout>
+    <CustomerLayout>
       <div className="space-y-6">
         {/* Welcome header */}
         <div className="bg-gradient-to-r from-primary to-secondary rounded-lg p-6 text-white">
@@ -315,6 +315,6 @@ export default function PatientDashboard() {
           </CardContent>
         </Card>
       </div>
-    </PatientLayout>
+    </CustomerLayout>
   );
 }
