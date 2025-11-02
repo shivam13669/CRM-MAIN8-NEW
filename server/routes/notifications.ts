@@ -26,21 +26,26 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
     const notifications: Notification[] = [];
 
     // Get recent appointments (last 24 hours)
-    const appointmentsResult = db.exec(`
-      SELECT 
-        a.id,
-        a.created_at,
-        a.reason,
-        customer.full_name as customer_name,
-        doctor.full_name as doctor_name
-      FROM appointments a
-      JOIN users customer ON a.customer_user_id = customer.id
-      LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
-      WHERE a.created_at >= datetime('now', '-24 hours')
-      AND a.status = 'pending'
-      ORDER BY a.created_at DESC
-      LIMIT 10
-    `);
+    let appointmentsResult: any = [];
+    try {
+      appointmentsResult = db.exec(`
+        SELECT
+          a.id,
+          a.created_at,
+          a.reason,
+          customer.full_name as customer_name,
+          doctor.full_name as doctor_name
+        FROM appointments a
+        JOIN users customer ON a.customer_user_id = customer.id
+        LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
+        WHERE a.status = 'pending'
+        ORDER BY a.created_at DESC
+        LIMIT 10
+      `);
+    } catch (error) {
+      console.error("Error fetching appointments for notifications:", error);
+      appointmentsResult = [];
+    }
 
     if (appointmentsResult.length > 0) {
       const columns = appointmentsResult[0].columns;
@@ -71,19 +76,27 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
     }
 
     // Get recent pending registrations (last 7 days)
-    const registrationsResult = db.exec(`
-      SELECT 
-        id,
-        full_name,
-        role,
-        specialization,
-        created_at
-      FROM pending_registrations
-      WHERE status = 'pending'
-      AND created_at >= datetime('now', '-7 days')
-      ORDER BY created_at DESC
-      LIMIT 5
-    `);
+    let registrationsResult: any = [];
+    try {
+      registrationsResult = db.exec(`
+        SELECT
+          id,
+          full_name,
+          role,
+          specialization,
+          created_at
+        FROM pending_registrations
+        WHERE status = 'pending'
+        ORDER BY created_at DESC
+        LIMIT 5
+      `);
+    } catch (error) {
+      console.error(
+        "Error fetching pending registrations for notifications:",
+        error,
+      );
+      registrationsResult = [];
+    }
 
     if (registrationsResult.length > 0) {
       const columns = registrationsResult[0].columns;
@@ -115,22 +128,27 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
     }
 
     // Get recent feedback/complaints (last 48 hours)
-    const complaintsResult = db.exec(`
-      SELECT 
-        fc.id,
-        fc.type,
-        fc.subject,
-        fc.category,
-        fc.priority,
-        fc.status,
-        fc.created_at,
-        customer.full_name as customer_name
-      FROM feedback_complaints fc
-      JOIN users customer ON fc.customer_user_id = customer.id
-      WHERE fc.created_at >= datetime('now', '-48 hours')
-      ORDER BY fc.created_at DESC
-      LIMIT 10
-    `);
+    let complaintsResult: any = [];
+    try {
+      complaintsResult = db.exec(`
+        SELECT
+          fc.id,
+          fc.type,
+          fc.subject,
+          fc.category,
+          fc.priority,
+          fc.status,
+          fc.created_at,
+          customer.full_name as customer_name
+        FROM feedback_complaints fc
+        JOIN users customer ON fc.customer_user_id = customer.id
+        ORDER BY fc.created_at DESC
+        LIMIT 10
+      `);
+    } catch (error) {
+      console.error("Error fetching feedback for notifications:", error);
+      complaintsResult = [];
+    }
 
     if (complaintsResult.length > 0) {
       const columns = complaintsResult[0].columns;
@@ -164,22 +182,30 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
     }
 
     // Get recent ambulance requests (last 12 hours)
-    const ambulanceResult = db.exec(`
-      SELECT
-        ar.id,
-        ar.emergency_type,
-        ar.customer_condition,
-        ar.priority,
-        ar.status,
-        ar.created_at,
-        ar.updated_at,
-        customer.full_name as customer_name
-      FROM ambulance_requests ar
-      JOIN users customer ON ar.customer_user_id = customer.id
-      WHERE ar.created_at >= datetime('now', '-12 hours') OR ar.updated_at >= datetime('now', '-12 hours')
-      ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
-      LIMIT 10
-    `);
+    let ambulanceResult: any = [];
+    try {
+      ambulanceResult = db.exec(`
+        SELECT
+          ar.id,
+          ar.emergency_type,
+          ar.customer_condition,
+          ar.priority,
+          ar.status,
+          ar.created_at,
+          ar.updated_at,
+          customer.full_name as customer_name
+        FROM ambulance_requests ar
+        JOIN users customer ON ar.customer_user_id = customer.id
+        ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
+        LIMIT 10
+      `);
+    } catch (error) {
+      console.error(
+        "Error fetching ambulance requests for notifications:",
+        error,
+      );
+      ambulanceResult = [];
+    }
 
     if (ambulanceResult.length > 0) {
       const columns = ambulanceResult[0].columns;
@@ -301,24 +327,33 @@ export const handleGetCustomerNotifications: RequestHandler = async (
     const notifications: Notification[] = [];
 
     // Get customer's ambulance requests (last 30 days)
-    const ambulanceResult = db.exec(
-      `
-      SELECT
-        ar.id,
-        ar.emergency_type,
-        ar.priority,
-        ar.status,
-        ar.created_at,
-        ar.updated_at,
-        staff.full_name as assigned_staff_name
-      FROM ambulance_requests ar
-      LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
-      WHERE ar.customer_user_id = ? AND ar.created_at >= datetime('now', '-30 days')
-      ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
-      LIMIT 20
-    `,
-      [userId],
-    );
+    let ambulanceResult: any = [];
+    try {
+      ambulanceResult = db.exec(
+        `
+        SELECT
+          ar.id,
+          ar.emergency_type,
+          ar.priority,
+          ar.status,
+          ar.created_at,
+          ar.updated_at,
+          staff.full_name as assigned_staff_name
+        FROM ambulance_requests ar
+        LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
+        WHERE ar.customer_user_id = ?
+        ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
+        LIMIT 20
+      `,
+        [userId],
+      );
+    } catch (error) {
+      console.error(
+        "Error fetching customer ambulance requests for notifications:",
+        error,
+      );
+      ambulanceResult = [];
+    }
 
     if (ambulanceResult.length > 0) {
       const columns = ambulanceResult[0].columns;
@@ -383,25 +418,34 @@ export const handleGetCustomerNotifications: RequestHandler = async (
     }
 
     // Get customer's appointments (last 14 days)
-    const appointmentsResult = db.exec(
-      `
-      SELECT
-        a.id,
-        a.appointment_date,
-        a.appointment_time,
-        a.status,
-        a.reason,
-        a.created_at,
-        a.updated_at,
-        doctor.full_name as doctor_name
-      FROM appointments a
-      LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
-      WHERE a.customer_user_id = ? AND a.created_at >= datetime('now', '-14 days')
-      ORDER BY a.created_at DESC
-      LIMIT 10
-    `,
-      [userId],
-    );
+    let appointmentsResult: any = [];
+    try {
+      appointmentsResult = db.exec(
+        `
+        SELECT
+          a.id,
+          a.appointment_date,
+          a.appointment_time,
+          a.status,
+          a.reason,
+          a.created_at,
+          a.updated_at,
+          doctor.full_name as doctor_name
+        FROM appointments a
+        LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
+        WHERE a.customer_user_id = ?
+        ORDER BY a.created_at DESC
+        LIMIT 10
+      `,
+        [userId],
+      );
+    } catch (error) {
+      console.error(
+        "Error fetching customer appointments for notifications:",
+        error,
+      );
+      appointmentsResult = [];
+    }
 
     if (appointmentsResult.length > 0) {
       const columns = appointmentsResult[0].columns;

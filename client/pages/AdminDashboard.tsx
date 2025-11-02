@@ -24,14 +24,14 @@ import {
 import { dataApi } from "../lib/api";
 
 interface DashboardData {
-  patients: any[];
+  customers: any[];
   doctors: any[];
   staff: any[];
   appointments: any[];
   ambulanceRequests: any[];
   feedback: any[];
   stats: {
-    totalPatients: number;
+    totalCustomers: number;
     totalDoctors: number;
     totalStaff: number;
     todayAppointments: number;
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
     },
   ];
 
-  const recentPatients = data?.patients.slice(0, 5) || [];
+  const recentPatients = data?.customers.slice(0, 5) || [];
   const recentDoctors = data?.doctors.slice(0, 5) || [];
   const recentStaff = data?.staff.slice(0, 5) || [];
   const recentAppointments = data?.appointments.slice(0, 5) || [];
@@ -662,7 +662,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-center">
               <div>
                 <div className="text-2xl font-bold text-primary">
-                  {data?.patients.length || 0}
+                  {data?.customers.length || 0}
                 </div>
                 <div className="text-sm text-gray-500">Total Patients</div>
               </div>
