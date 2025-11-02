@@ -134,13 +134,17 @@ export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
       // Sort by priority manually
       const priorityOrder = { critical: 1, high: 2, normal: 3, low: 4 };
       requests.sort((a, b) => {
-        const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 3;
-        const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 3;
+        const aPriority =
+          priorityOrder[a.priority as keyof typeof priorityOrder] || 3;
+        const bPriority =
+          priorityOrder[b.priority as keyof typeof priorityOrder] || 3;
         if (aPriority !== bPriority) {
           return aPriority - bPriority;
         }
         // Then sort by created_at descending
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
       });
     }
 
@@ -282,11 +286,9 @@ export const handleAssignAmbulanceRequest: RequestHandler = async (
     const { requestId } = req.params;
 
     if (role !== "staff") {
-      return res
-        .status(403)
-        .json({
-          error: "Only staff can assign ambulance requests to themselves",
-        });
+      return res.status(403).json({
+        error: "Only staff can assign ambulance requests to themselves",
+      });
     }
 
     // Check if request exists and is pending
@@ -348,11 +350,9 @@ export const handleUpdateAmbulanceStatus: RequestHandler = async (req, res) => {
     const { status, notes } = req.body;
 
     if (role !== "staff" && role !== "admin") {
-      return res
-        .status(403)
-        .json({
-          error: "Only staff and admin can update ambulance request status",
-        });
+      return res.status(403).json({
+        error: "Only staff and admin can update ambulance request status",
+      });
     }
 
     // Validate status
