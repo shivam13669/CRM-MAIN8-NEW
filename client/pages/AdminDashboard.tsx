@@ -24,14 +24,14 @@ import {
 import { dataApi } from "../lib/api";
 
 interface DashboardData {
-  patients: any[];
+  customers: any[];
   doctors: any[];
   staff: any[];
   appointments: any[];
   ambulanceRequests: any[];
   feedback: any[];
   stats: {
-    totalPatients: number;
+    totalCustomers: number;
     totalDoctors: number;
     totalStaff: number;
     todayAppointments: number;
