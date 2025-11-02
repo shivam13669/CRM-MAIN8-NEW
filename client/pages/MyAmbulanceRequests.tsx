@@ -57,7 +57,7 @@ export default function MyAmbulanceRequests() {
       }
 
       setAuthError(false);
-      const response = await fetch('/api/ambulance/patient', {
+      const response = await fetch('/api/ambulance/customer', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
