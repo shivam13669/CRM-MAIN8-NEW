@@ -47,7 +47,7 @@ import { Badge } from "../components/ui/badge";
 import { Separator } from "../components/ui/separator";
 import { Label } from "../components/ui/label";
 
-interface Patient {
+interface Customer {
   user_id: number;
   full_name: string;
   email: string;
@@ -68,11 +68,11 @@ interface FilterState {
   registrationPeriod: string;
 }
 
-export default function PatientsManagement() {
-  const [patients, setPatients] = useState<Patient[]>([]);
+export default function CustomersManagement() {
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     gender: "all",
@@ -83,12 +83,12 @@ export default function PatientsManagement() {
   });
 
   useEffect(() => {
-    fetchPatients();
+    fetchCustomers();
   }, []);
 
-  const fetchPatients = async () => {
+  const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/patients', {
+      const response = await fetch('/api/customers', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
@@ -96,9 +96,9 @@ export default function PatientsManagement() {
 
       if (response.ok) {
         const data = await response.json();
-        setPatients(data.patients || []);
+        setCustomers(data.customers || []);
       } else {
-        console.error('Failed to fetch patients');
+        console.error('Failed to fetch customers');
       }
     } catch (error) {
       console.error('Error fetching patients:', error);
