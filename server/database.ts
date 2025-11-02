@@ -330,13 +330,13 @@ export interface User {
   username: string;
   email: string;
   password: string;
-  role: "admin" | "doctor" | "patient" | "staff";
+  role: "admin" | "doctor" | "customer" | "staff";
   full_name: string;
   phone?: string;
   created_at?: string;
 }
 
-export interface Patient {
+export interface Customer {
   id?: number;
   user_id: number;
   date_of_birth?: string;
@@ -600,11 +600,11 @@ export async function updateUserPassword(
   }
 }
 
-// Patient operations
-export function createPatient(patient: Patient): number {
+// Customer operations
+export function createCustomer(customer: Customer): number {
   try {
     const stmt = db.prepare(`
-      INSERT INTO patients (
+      INSERT INTO customers (
         user_id, date_of_birth, gender, blood_group, address, 
         emergency_contact, emergency_contact_name, emergency_contact_relation,
         allergies, medical_conditions, current_medications, insurance,
@@ -613,35 +613,35 @@ export function createPatient(patient: Patient): number {
     `);
 
     stmt.run([
-      patient.user_id,
-      patient.date_of_birth || null,
-      patient.gender || null,
-      patient.blood_group || null,
-      patient.address || null,
-      patient.emergency_contact || null,
-      patient.emergency_contact_name || null,
-      patient.emergency_contact_relation || null,
-      patient.allergies || null,
-      patient.medical_conditions || null,
-      patient.current_medications || null,
-      patient.insurance || null,
-      patient.insurance_policy_number || null,
-      patient.occupation || null,
-      patient.height || null,
-      patient.weight || null,
+      customer.user_id,
+      customer.date_of_birth || null,
+      customer.gender || null,
+      customer.blood_group || null,
+      customer.address || null,
+      customer.emergency_contact || null,
+      customer.emergency_contact_name || null,
+      customer.emergency_contact_relation || null,
+      customer.allergies || null,
+      customer.medical_conditions || null,
+      customer.current_medications || null,
+      customer.insurance || null,
+      customer.insurance_policy_number || null,
+      customer.occupation || null,
+      customer.height || null,
+      customer.weight || null,
     ]);
 
     const result = db.exec("SELECT last_insert_rowid() as id");
-    const patientId = result[0].values[0][0];
+    const customerId = result[0].values[0][0];
 
     saveDatabase();
     console.log(
-      `✅ Patient created in SQLite for user_id: ${patient.user_id} - ID: ${patientId}`,
+      `✅ Customer created in SQLite for user_id: ${customer.user_id} - ID: ${customerId}`,
     );
 
-    return patientId as number;
+    return customerId as number;
   } catch (error) {
-    console.error("❌ Error creating patient:", error);
+    console.error("❌ Error creating customer:", error);
     throw error;
   }
 }
