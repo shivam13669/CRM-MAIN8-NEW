@@ -161,7 +161,7 @@ function createTables(): void {
     db.run(`
       CREATE TABLE IF NOT EXISTS appointments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        patient_user_id INTEGER NOT NULL,
+        customer_user_id INTEGER NOT NULL,
         doctor_user_id INTEGER,
         appointment_date DATE NOT NULL,
         appointment_time TEXT NOT NULL,
@@ -171,7 +171,7 @@ function createTables(): void {
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (patient_user_id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (customer_user_id) REFERENCES users (id) ON DELETE CASCADE,
         FOREIGN KEY (doctor_user_id) REFERENCES users (id) ON DELETE SET NULL
       )
     `);
