@@ -38,7 +38,7 @@ export default function Ambulance() {
   });
 
   useEffect(() => {
-    const role = localStorage.getItem('userRole') || "";
+    const role = localStorage.getItem("userRole") || "";
     setUserRole(role);
   }, []);
 
@@ -61,42 +61,49 @@ export default function Ambulance() {
     e.preventDefault();
 
     // Validate required fields
-    if (!formData.emergencyType || !formData.patientName || !formData.age ||
-        !formData.gender || !formData.contactNumber || !formData.pickupAddress ||
-        !formData.patientCondition) {
-      alert('Please fill in all required fields');
+    if (
+      !formData.emergencyType ||
+      !formData.patientName ||
+      !formData.age ||
+      !formData.gender ||
+      !formData.contactNumber ||
+      !formData.pickupAddress ||
+      !formData.patientCondition
+    ) {
+      alert("Please fill in all required fields");
       return;
     }
 
     setSubmitting(true);
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        alert('You must be logged in to request ambulance service');
+        alert("You must be logged in to request ambulance service");
         return;
       }
 
-      const response = await fetch('/api/ambulance', {
-        method: 'POST',
+      const response = await fetch("/api/ambulance", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           pickup_address: formData.pickupAddress,
-          destination_address: formData.destinationAddress || 'Emergency Hospital',
+          destination_address:
+            formData.destinationAddress || "Emergency Hospital",
           emergency_type: formData.emergencyType,
           patient_condition: `Patient: ${formData.patientName}, Age: ${formData.age}, Gender: ${formData.gender}. Condition: ${formData.patientCondition}`,
           contact_number: formData.contactNumber,
-          priority: formData.priority
-        })
+          priority: formData.priority,
+        }),
       });
 
       if (response.ok) {
         const data = await response.json();
         alert(
-          `Emergency ambulance request submitted successfully! Request ID: ${data.requestId}. Our team will respond immediately. Please keep the patient calm and stay on the line.`
+          `Emergency ambulance request submitted successfully! Request ID: ${data.requestId}. Our team will respond immediately. Please keep the patient calm and stay on the line.`,
         );
 
         // Reset form
@@ -113,9 +120,9 @@ export default function Ambulance() {
         });
 
         // Redirect to My Ambulance Requests for patients
-        if (userRole === 'patient') {
+        if (userRole === "patient") {
           setTimeout(() => {
-            window.location.href = '/my-ambulance-requests';
+            window.location.href = "/my-ambulance-requests";
           }, 2000);
         }
       } else {
@@ -123,8 +130,8 @@ export default function Ambulance() {
         alert(`Failed to submit ambulance request: ${errorData.error}`);
       }
     } catch (error) {
-      console.error('Error submitting ambulance request:', error);
-      alert('Failed to submit ambulance request. Please try again.');
+      console.error("Error submitting ambulance request:", error);
+      alert("Failed to submit ambulance request. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -132,13 +139,13 @@ export default function Ambulance() {
 
   const getLayoutComponent = () => {
     switch (userRole) {
-      case 'admin':
+      case "admin":
         return Layout;
-      case 'doctor':
+      case "doctor":
         return DoctorLayout;
-      case 'staff':
+      case "staff":
         return StaffLayout;
-      case 'patient':
+      case "patient":
       default:
         return PatientLayout;
     }
@@ -232,7 +239,10 @@ export default function Ambulance() {
                         type="number"
                         value={formData.age}
                         onChange={(e) =>
-                          setFormData((prev) => ({ ...prev, age: e.target.value }))
+                          setFormData((prev) => ({
+                            ...prev,
+                            age: e.target.value,
+                          }))
                         }
                         className="mt-1"
                         placeholder="Age"
@@ -281,7 +291,7 @@ export default function Ambulance() {
                       minLength={10}
                       onInput={(e) => {
                         const input = e.target as HTMLInputElement;
-                        input.value = input.value.replace(/[^0-9]/g, '');
+                        input.value = input.value.replace(/[^0-9]/g, "");
                         if (input.value.length > 10) {
                           input.value = input.value.slice(0, 10);
                         }
@@ -378,7 +388,9 @@ export default function Ambulance() {
             {/* Emergency Numbers */}
             <Card className="border-red-200 bg-red-50">
               <CardHeader>
-                <CardTitle className="text-red-800">Emergency Numbers</CardTitle>
+                <CardTitle className="text-red-800">
+                  Emergency Numbers
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-red-200">
@@ -401,7 +413,9 @@ export default function Ambulance() {
 
                 <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-red-200">
                   <div>
-                    <div className="font-semibold text-red-800">Fire Brigade</div>
+                    <div className="font-semibold text-red-800">
+                      Fire Brigade
+                    </div>
                     <div className="text-sm text-red-600">Fire emergencies</div>
                   </div>
                   <div className="text-xl font-bold text-red-600">101</div>

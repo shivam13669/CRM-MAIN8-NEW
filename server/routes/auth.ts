@@ -116,7 +116,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
       const phoneRegex = /^[0-9]{10}$/;
       if (!phoneRegex.test(phone)) {
         return res.status(400).json({
-          error: "Mobile number must be exactly 10 digits"
+          error: "Mobile number must be exactly 10 digits",
         });
       }
     }
@@ -131,9 +131,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
 
     if (existingUser) {
       console.log(`❌ Registration blocked - email exists: ${email}`);
-      return res
-        .status(409)
-        .json({ error: "Mobile or Email already in use" });
+      return res.status(409).json({ error: "Mobile or Email already in use" });
     }
 
     // Check if phone number already exists (if provided)
@@ -255,7 +253,9 @@ export const handleRegister: RequestHandler = async (req, res) => {
       if (error.message.includes("username")) {
         return res.status(409).json({ error: "Username already exists" });
       } else if (error.message.includes("email")) {
-        return res.status(409).json({ error: "Mobile or Email already in use" });
+        return res
+          .status(409)
+          .json({ error: "Mobile or Email already in use" });
       }
     }
 
@@ -355,7 +355,8 @@ export const handleForgotPassword: RequestHandler = async (req, res) => {
     if (!user) {
       // Don't reveal if email exists for security reasons
       return res.json({
-        message: "If an account with that email exists, a reset link has been sent."
+        message:
+          "If an account with that email exists, a reset link has been sent.",
       });
     }
 
@@ -371,9 +372,9 @@ export const handleForgotPassword: RequestHandler = async (req, res) => {
 
     // Simulate sending email (in real app, use nodemailer or similar)
     res.json({
-      message: "If an account with that email exists, a reset link has been sent."
+      message:
+        "If an account with that email exists, a reset link has been sent.",
     });
-
   } catch (error) {
     console.error("Forgot password error:", error);
     res.status(500).json({ error: "Internal server error" });

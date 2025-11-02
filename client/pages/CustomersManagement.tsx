@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { Layout } from "../components/Layout";
-import { 
-  Users, 
-  Search, 
-  Filter, 
-  Download, 
-  Eye, 
-  Mail, 
+import {
+  Users,
+  Search,
+  Filter,
+  Download,
+  Eye,
+  Mail,
   Phone,
   MapPin,
   Calendar,
   User,
   Heart,
-  Activity
+  Activity,
 } from "lucide-react";
 import {
   Card,
@@ -72,14 +72,16 @@ export default function CustomersManagement() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
   const [filterOpen, setFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     gender: "all",
     bloodGroup: "all",
     ageRange: "all",
     hasConditions: "all",
-    registrationPeriod: "all"
+    registrationPeriod: "all",
   });
 
   useEffect(() => {
@@ -88,28 +90,29 @@ export default function CustomersManagement() {
 
   const fetchCustomers = async () => {
     try {
-      const response = await fetch('/api/customers', {
+      const response = await fetch("/api/customers", {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
       });
 
       if (response.ok) {
         const data = await response.json();
         setCustomers(data.customers || []);
       } else {
-        console.error('Failed to fetch customers');
+        console.error("Failed to fetch customers");
       }
     } catch (error) {
-      console.error('Error fetching customers:', error);
+      console.error("Error fetching customers:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredCustomers = customers.filter(customer => {
+  const filteredCustomers = customers.filter((customer) => {
     // Search filter
-    const matchesSearch = customer.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch =
+      customer.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (customer.phone && customer.phone.includes(searchTerm));
 
@@ -121,13 +124,18 @@ export default function CustomersManagement() {
     }
 
     // Blood group filter
-    if (filters.bloodGroup !== "all" && customer.blood_group !== filters.bloodGroup) {
+    if (
+      filters.bloodGroup !== "all" &&
+      customer.blood_group !== filters.bloodGroup
+    ) {
       return false;
     }
 
     // Age range filter
     if (filters.ageRange !== "all") {
-      const age = customer.date_of_birth ? calculateAge(customer.date_of_birth) : 0;
+      const age = customer.date_of_birth
+        ? calculateAge(customer.date_of_birth)
+        : 0;
       switch (filters.ageRange) {
         case "0-18":
           if (age > 18) return false;
@@ -146,7 +154,9 @@ export default function CustomersManagement() {
 
     // Medical conditions filter
     if (filters.hasConditions !== "all") {
-      const hasConditions = customer.medical_conditions && customer.medical_conditions.trim() !== "";
+      const hasConditions =
+        customer.medical_conditions &&
+        customer.medical_conditions.trim() !== "";
       if (filters.hasConditions === "yes" && !hasConditions) return false;
       if (filters.hasConditions === "no" && hasConditions) return false;
     }
@@ -190,7 +200,10 @@ export default function CustomersManagement() {
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
     return age;
@@ -206,14 +219,18 @@ export default function CustomersManagement() {
   };
 
   const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-  const bloodGroupsInCustomers = Array.from(new Set(customers.map(c => c.blood_group))).filter(Boolean);
+  const bloodGroupsInCustomers = Array.from(
+    new Set(customers.map((c) => c.blood_group)),
+  ).filter(Boolean);
 
   return (
     <Layout>
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Customer Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Customer Management
+          </h1>
           <p className="text-gray-600 mt-2">
             Manage and view all registered customers in your healthcare system
           </p>
@@ -244,7 +261,10 @@ export default function CustomersManagement() {
                             <Select
                               value={filters.gender}
                               onValueChange={(value) =>
-                                setFilters((prev) => ({ ...prev, gender: value }))
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  gender: value,
+                                }))
                               }
                             >
                               <SelectTrigger className="mt-1">
@@ -264,14 +284,19 @@ export default function CustomersManagement() {
                             <Select
                               value={filters.bloodGroup}
                               onValueChange={(value) =>
-                                setFilters((prev) => ({ ...prev, bloodGroup: value }))
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  bloodGroup: value,
+                                }))
                               }
                             >
                               <SelectTrigger className="mt-1">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="all">All Blood Groups</SelectItem>
+                                <SelectItem value="all">
+                                  All Blood Groups
+                                </SelectItem>
                                 {bloodGroupsInCustomers.map((bg) => (
                                   <SelectItem key={bg} value={bg || "unknown"}>
                                     {bg || "Unknown"}
@@ -286,7 +311,10 @@ export default function CustomersManagement() {
                             <Select
                               value={filters.ageRange}
                               onValueChange={(value) =>
-                                setFilters((prev) => ({ ...prev, ageRange: value }))
+                                setFilters((prev) => ({
+                                  ...prev,
+                                  ageRange: value,
+                                }))
                               }
                             >
                               <SelectTrigger className="mt-1">
@@ -295,8 +323,12 @@ export default function CustomersManagement() {
                               <SelectContent>
                                 <SelectItem value="all">All Ages</SelectItem>
                                 <SelectItem value="0-18">0-18 years</SelectItem>
-                                <SelectItem value="19-30">19-30 years</SelectItem>
-                                <SelectItem value="31-50">31-50 years</SelectItem>
+                                <SelectItem value="19-30">
+                                  19-30 years
+                                </SelectItem>
+                                <SelectItem value="31-50">
+                                  31-50 years
+                                </SelectItem>
                                 <SelectItem value="51+">51+ years</SelectItem>
                               </SelectContent>
                             </Select>
@@ -317,9 +349,15 @@ export default function CustomersManagement() {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="all">All Customers</SelectItem>
-                                <SelectItem value="yes">Has Conditions</SelectItem>
-                                <SelectItem value="no">No Conditions</SelectItem>
+                                <SelectItem value="all">
+                                  All Customers
+                                </SelectItem>
+                                <SelectItem value="yes">
+                                  Has Conditions
+                                </SelectItem>
+                                <SelectItem value="no">
+                                  No Conditions
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -332,17 +370,23 @@ export default function CustomersManagement() {
                     <div className="bg-blue-50 p-4 rounded-lg flex items-center gap-2">
                       <Users className="w-5 h-5 text-blue-600" />
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Total Customers</p>
-                        <p className="text-2xl font-bold text-gray-900">{customers.length}</p>
+                        <p className="text-sm font-medium text-gray-600">
+                          Total Customers
+                        </p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {customers.length}
+                        </p>
                       </div>
                     </div>
 
                     <div className="bg-green-50 p-4 rounded-lg flex items-center gap-2">
                       <span>👨</span>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Male Customers</p>
+                        <p className="text-sm font-medium text-gray-600">
+                          Male Customers
+                        </p>
                         <p className="text-2xl font-bold text-gray-900">
-                          {customers.filter(c => c.gender === 'male').length}
+                          {customers.filter((c) => c.gender === "male").length}
                         </p>
                       </div>
                     </div>
@@ -350,9 +394,14 @@ export default function CustomersManagement() {
                     <div className="bg-pink-50 p-4 rounded-lg flex items-center gap-2">
                       <span>👩</span>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Female Customers</p>
+                        <p className="text-sm font-medium text-gray-600">
+                          Female Customers
+                        </p>
                         <p className="text-2xl font-bold text-gray-900">
-                          {customers.filter(c => c.gender === 'female').length}
+                          {
+                            customers.filter((c) => c.gender === "female")
+                              .length
+                          }
                         </p>
                       </div>
                     </div>
@@ -360,16 +409,20 @@ export default function CustomersManagement() {
                     <div className="bg-orange-50 p-4 rounded-lg flex items-center gap-2">
                       <Activity className="w-5 h-5 text-orange-600" />
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">This Month</p>
+                        <p className="text-sm font-medium text-gray-600">
+                          This Month
+                        </p>
                         <p className="text-2xl font-bold text-gray-900">
-                          {customers.filter(c => {
-                            const createdDate = new Date(c.created_at);
-                            const now = new Date();
-                            return (
-                              createdDate.getMonth() === now.getMonth() &&
-                              createdDate.getFullYear() === now.getFullYear()
-                            );
-                          }).length}
+                          {
+                            customers.filter((c) => {
+                              const createdDate = new Date(c.created_at);
+                              const now = new Date();
+                              return (
+                                createdDate.getMonth() === now.getMonth() &&
+                                createdDate.getFullYear() === now.getFullYear()
+                              );
+                            }).length
+                          }
                         </p>
                       </div>
                     </div>
@@ -426,10 +479,14 @@ export default function CustomersManagement() {
                   >
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="text-xl">{getGenderIcon(customer.gender)}</span>
+                        <span className="text-xl">
+                          {getGenderIcon(customer.gender)}
+                        </span>
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900">{customer.full_name}</div>
+                        <div className="font-medium text-gray-900">
+                          {customer.full_name}
+                        </div>
                         <div className="flex items-center space-x-4 text-sm text-gray-500 mt-1">
                           <div className="flex items-center">
                             <Mail className="w-4 h-4 mr-1" />
@@ -487,8 +544,12 @@ export default function CustomersManagement() {
                                   <div className="flex items-center space-x-3">
                                     <Mail className="w-5 h-5 text-blue-600" />
                                     <div>
-                                      <p className="text-sm text-gray-500">Email</p>
-                                      <p className="font-medium">{selectedCustomer.email}</p>
+                                      <p className="text-sm text-gray-500">
+                                        Email
+                                      </p>
+                                      <p className="font-medium">
+                                        {selectedCustomer.email}
+                                      </p>
                                     </div>
                                   </div>
 
@@ -496,8 +557,12 @@ export default function CustomersManagement() {
                                     <div className="flex items-center space-x-3">
                                       <Phone className="w-5 h-5 text-blue-600" />
                                       <div>
-                                        <p className="text-sm text-gray-500">Phone</p>
-                                        <p className="font-medium">{selectedCustomer.phone}</p>
+                                        <p className="text-sm text-gray-500">
+                                          Phone
+                                        </p>
+                                        <p className="font-medium">
+                                          {selectedCustomer.phone}
+                                        </p>
                                       </div>
                                     </div>
                                   )}
@@ -506,8 +571,12 @@ export default function CustomersManagement() {
                                     <div className="flex items-center space-x-3">
                                       <Calendar className="w-5 h-5 text-blue-600" />
                                       <div>
-                                        <p className="text-sm text-gray-500">Date of Birth</p>
-                                        <p className="font-medium">{selectedCustomer.date_of_birth}</p>
+                                        <p className="text-sm text-gray-500">
+                                          Date of Birth
+                                        </p>
+                                        <p className="font-medium">
+                                          {selectedCustomer.date_of_birth}
+                                        </p>
                                       </div>
                                     </div>
                                   )}
@@ -516,8 +585,12 @@ export default function CustomersManagement() {
                                     <div className="flex items-center space-x-3">
                                       <User className="w-5 h-5 text-blue-600" />
                                       <div>
-                                        <p className="text-sm text-gray-500">Gender</p>
-                                        <p className="font-medium">{selectedCustomer.gender}</p>
+                                        <p className="text-sm text-gray-500">
+                                          Gender
+                                        </p>
+                                        <p className="font-medium">
+                                          {selectedCustomer.gender}
+                                        </p>
                                       </div>
                                     </div>
                                   )}
@@ -526,8 +599,12 @@ export default function CustomersManagement() {
                                     <div className="flex items-start space-x-3">
                                       <MapPin className="w-5 h-5 text-blue-600 mt-1" />
                                       <div>
-                                        <p className="text-sm text-gray-500">Address</p>
-                                        <p className="font-medium">{selectedCustomer.address}</p>
+                                        <p className="text-sm text-gray-500">
+                                          Address
+                                        </p>
+                                        <p className="font-medium">
+                                          {selectedCustomer.address}
+                                        </p>
                                       </div>
                                     </div>
                                   )}
@@ -540,8 +617,12 @@ export default function CustomersManagement() {
                                     <div className="flex items-center space-x-3">
                                       <Heart className="w-5 h-5 text-red-600" />
                                       <div>
-                                        <p className="text-sm text-gray-500">Blood Group</p>
-                                        <p className="font-medium">{selectedCustomer.blood_group}</p>
+                                        <p className="text-sm text-gray-500">
+                                          Blood Group
+                                        </p>
+                                        <p className="font-medium">
+                                          {selectedCustomer.blood_group}
+                                        </p>
                                       </div>
                                     </div>
                                   )}
@@ -550,8 +631,12 @@ export default function CustomersManagement() {
                                     <div className="flex items-start space-x-3">
                                       <Activity className="w-5 h-5 text-orange-600 mt-1" />
                                       <div>
-                                        <p className="text-sm text-gray-500">Medical Conditions</p>
-                                        <p className="font-medium">{selectedCustomer.medical_conditions}</p>
+                                        <p className="text-sm text-gray-500">
+                                          Medical Conditions
+                                        </p>
+                                        <p className="font-medium">
+                                          {selectedCustomer.medical_conditions}
+                                        </p>
                                       </div>
                                     </div>
                                   )}
@@ -559,9 +644,13 @@ export default function CustomersManagement() {
                                   <div className="flex items-center space-x-3">
                                     <Calendar className="w-5 h-5 text-gray-600" />
                                     <div>
-                                      <p className="text-sm text-gray-500">Registration Date</p>
+                                      <p className="text-sm text-gray-500">
+                                        Registration Date
+                                      </p>
                                       <p className="font-medium">
-                                        {formatDate(selectedCustomer.created_at)}
+                                        {formatDate(
+                                          selectedCustomer.created_at,
+                                        )}
                                       </p>
                                     </div>
                                   </div>

@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { db } from '../database';
+import { db } from "../database";
 
 export interface AmbulanceRequest {
   id?: number;
@@ -17,12 +17,17 @@ export interface AmbulanceRequest {
 }
 
 // Create ambulance request (for customers)
-export const handleCreateAmbulanceRequest: RequestHandler = async (req, res) => {
+export const handleCreateAmbulanceRequest: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { userId, role } = (req as any).user;
 
-    if (role !== 'customer') {
-      return res.status(403).json({ error: 'Only customers can request ambulance services' });
+    if (role !== "customer") {
+      return res
+        .status(403)
+        .json({ error: "Only customers can request ambulance services" });
     }
 
     const {
@@ -31,42 +36,52 @@ export const handleCreateAmbulanceRequest: RequestHandler = async (req, res) => 
       emergency_type,
       customer_condition,
       contact_number,
-      priority = 'normal'
+      priority = "normal",
     } = req.body;
 
-    if (!pickup_address || !destination_address || !emergency_type || !contact_number) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (
+      !pickup_address ||
+      !destination_address ||
+      !emergency_type ||
+      !contact_number
+    ) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     // Insert ambulance request
-    db.run(`
+    db.run(
+      `
       INSERT INTO ambulance_requests (
         customer_user_id, pickup_address, destination_address, emergency_type,
         customer_condition, contact_number, priority, status, created_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
-    `, [
-      userId,
-      pickup_address,
-      destination_address,
-      emergency_type,
-      customer_condition || null,
-      contact_number,
-      priority
-    ]);
+    `,
+      [
+        userId,
+        pickup_address,
+        destination_address,
+        emergency_type,
+        customer_condition || null,
+        contact_number,
+        priority,
+      ],
+    );
 
     // Get the created request
     const result = db.exec("SELECT last_insert_rowid() as id");
     const requestId = result[0].values[0][0];
 
-    console.log(`🚑 Ambulance request created: ID ${requestId} for user ${userId}`);
+    console.log(
+      `🚑 Ambulance request created: ID ${requestId} for user ${userId}`,
+    );
 
     res.status(201).json({
-      message: 'Ambulance request created successfully',
-      requestId
+      message: "Ambulance request created successfully",
+      requestId,
     });
   } catch (error) {
-    console.error('Create ambulance request error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Create ambulance request error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -74,9 +89,11 @@ export const handleCreateAmbulanceRequest: RequestHandler = async (req, res) => 
 export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
   try {
     const { role } = (req as any).user;
-    
-    if (role !== 'staff' && role !== 'admin') {
-      return res.status(403).json({ error: 'Only staff and admin can view ambulance requests' });
+
+    if (role !== "staff" && role !== "admin") {
+      return res
+        .status(403)
+        .json({ error: "Only staff and admin can view ambulance requests" });
     }
 
     const result = db.exec(`
@@ -113,8 +130,8 @@ export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
     if (result.length > 0) {
       const columns = result[0].columns;
       const rows = result[0].values;
-      
-      requests = rows.map(row => {
+
+      requests = rows.map((row) => {
         const request: any = {};
         columns.forEach((col, index) => {
           request[col] = row[index];
@@ -125,59 +142,75 @@ export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
 
     res.json({
       requests,
-      total: requests.length
+      total: requests.length,
     });
   } catch (error) {
-    console.error('Get ambulance requests error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Get ambulance requests error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Update ambulance request status (for staff and admin)
-export const handleUpdateAmbulanceRequest: RequestHandler = async (req, res) => {
+export const handleUpdateAmbulanceRequest: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { role, userId } = (req as any).user;
     const { requestId } = req.params;
     const { status, assigned_staff_id, notes } = req.body;
 
-    if (role !== 'staff' && role !== 'admin') {
-      return res.status(403).json({ error: 'Only staff and admin can update ambulance requests' });
+    if (role !== "staff" && role !== "admin") {
+      return res
+        .status(403)
+        .json({ error: "Only staff and admin can update ambulance requests" });
     }
 
     // Update the request
-    db.run(`
+    db.run(
+      `
       UPDATE ambulance_requests 
       SET status = ?, assigned_staff_id = ?, notes = ?, updated_at = datetime('now')
       WHERE id = ?
-    `, [status, assigned_staff_id || null, notes || null, requestId]);
+    `,
+      [status, assigned_staff_id || null, notes || null, requestId],
+    );
 
     console.log(`🚑 Ambulance request ${requestId} updated by user ${userId}`);
 
-    res.json({ message: 'Ambulance request updated successfully' });
+    res.json({ message: "Ambulance request updated successfully" });
   } catch (error) {
-    console.error('Update ambulance request error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Update ambulance request error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Get customer's own ambulance requests
-export const handleGetCustomerAmbulanceRequests: RequestHandler = async (req, res) => {
+export const handleGetCustomerAmbulanceRequests: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
-    console.log('🔍 GET /api/ambulance/customer called');
-    console.log('   JWT Data:', (req as any).user);
+    console.log("🔍 GET /api/ambulance/customer called");
+    console.log("   JWT Data:", (req as any).user);
 
     const { userId, role } = (req as any).user;
 
     console.log(`   userId: ${userId}, role: ${role}`);
 
-    if (role !== 'customer') {
+    if (role !== "customer") {
       console.log(`❌ Access denied: role is ${role}, not customer`);
-      return res.status(403).json({ error: 'Only customers can view their own requests' });
+      return res
+        .status(403)
+        .json({ error: "Only customers can view their own requests" });
     }
 
-    console.log(`🔍 Querying ambulance_requests WHERE customer_user_id = ${userId}`);
+    console.log(
+      `🔍 Querying ambulance_requests WHERE customer_user_id = ${userId}`,
+    );
 
-    const result = db.exec(`
+    const result = db.exec(
+      `
       SELECT
         ar.*,
         staff.full_name as assigned_staff_name,
@@ -186,14 +219,16 @@ export const handleGetCustomerAmbulanceRequests: RequestHandler = async (req, re
       LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
       WHERE ar.customer_user_id = ?
       ORDER BY ar.created_at DESC
-    `, [userId]);
+    `,
+      [userId],
+    );
 
     let requests = [];
     if (result.length > 0) {
       const columns = result[0].columns;
       const rows = result[0].values;
 
-      requests = rows.map(row => {
+      requests = rows.map((row) => {
         const request: any = {};
         columns.forEach((col, index) => {
           request[col] = row[index];
@@ -202,69 +237,92 @@ export const handleGetCustomerAmbulanceRequests: RequestHandler = async (req, re
       });
     }
 
-    console.log(`✅ Query result: Found ${requests.length} ambulance requests for userId ${userId}`);
+    console.log(
+      `✅ Query result: Found ${requests.length} ambulance requests for userId ${userId}`,
+    );
     if (requests.length > 0) {
-      requests.forEach(req => {
-        console.log(`   - Request #${req.id}: ${req.emergency_type} (${req.status})`);
+      requests.forEach((req) => {
+        console.log(
+          `   - Request #${req.id}: ${req.emergency_type} (${req.status})`,
+        );
       });
     }
 
     res.json({
       requests,
-      total: requests.length
+      total: requests.length,
     });
   } catch (error) {
-    console.error('Get customer ambulance requests error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Get customer ambulance requests error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Assign ambulance request to current staff member
-export const handleAssignAmbulanceRequest: RequestHandler = async (req, res) => {
+export const handleAssignAmbulanceRequest: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { role, userId } = (req as any).user;
     const { requestId } = req.params;
 
-    if (role !== 'staff') {
-      return res.status(403).json({ error: 'Only staff can assign ambulance requests to themselves' });
+    if (role !== "staff") {
+      return res
+        .status(403)
+        .json({
+          error: "Only staff can assign ambulance requests to themselves",
+        });
     }
 
     // Check if request exists and is pending
-    const checkResult = db.exec(`
+    const checkResult = db.exec(
+      `
       SELECT id, status, assigned_staff_id
       FROM ambulance_requests
       WHERE id = ?
-    `, [requestId]);
+    `,
+      [requestId],
+    );
 
     if (checkResult.length === 0 || checkResult[0].values.length === 0) {
-      return res.status(404).json({ error: 'Ambulance request not found' });
+      return res.status(404).json({ error: "Ambulance request not found" });
     }
 
     const request = checkResult[0].values[0];
     const currentStatus = request[1];
     const currentAssignedStaff = request[2];
 
-    if (currentStatus !== 'pending') {
-      return res.status(400).json({ error: 'Request is not in pending status' });
+    if (currentStatus !== "pending") {
+      return res
+        .status(400)
+        .json({ error: "Request is not in pending status" });
     }
 
     if (currentAssignedStaff) {
-      return res.status(400).json({ error: 'Request is already assigned to another staff member' });
+      return res
+        .status(400)
+        .json({ error: "Request is already assigned to another staff member" });
     }
 
     // Assign the request to current staff member
-    db.run(`
+    db.run(
+      `
       UPDATE ambulance_requests
       SET status = 'assigned', assigned_staff_id = ?, updated_at = datetime('now')
       WHERE id = ?
-    `, [userId, requestId]);
+    `,
+      [userId, requestId],
+    );
 
-    console.log(`🚑 Ambulance request ${requestId} assigned to staff ${userId}`);
+    console.log(
+      `🚑 Ambulance request ${requestId} assigned to staff ${userId}`,
+    );
 
-    res.json({ message: 'Ambulance request assigned successfully' });
+    res.json({ message: "Ambulance request assigned successfully" });
   } catch (error) {
-    console.error('Assign ambulance request error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Assign ambulance request error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -275,46 +333,60 @@ export const handleUpdateAmbulanceStatus: RequestHandler = async (req, res) => {
     const { requestId } = req.params;
     const { status, notes } = req.body;
 
-    if (role !== 'staff' && role !== 'admin') {
-      return res.status(403).json({ error: 'Only staff and admin can update ambulance request status' });
+    if (role !== "staff" && role !== "admin") {
+      return res
+        .status(403)
+        .json({
+          error: "Only staff and admin can update ambulance request status",
+        });
     }
 
     // Validate status
-    const validStatuses = ['assigned', 'on_the_way', 'completed', 'cancelled'];
+    const validStatuses = ["assigned", "on_the_way", "completed", "cancelled"];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ error: 'Invalid status provided' });
+      return res.status(400).json({ error: "Invalid status provided" });
     }
 
     // Check if request exists and is assigned to this staff member (if staff)
-    if (role === 'staff') {
-      const checkResult = db.exec(`
+    if (role === "staff") {
+      const checkResult = db.exec(
+        `
         SELECT assigned_staff_id
         FROM ambulance_requests
         WHERE id = ?
-      `, [requestId]);
+      `,
+        [requestId],
+      );
 
       if (checkResult.length === 0 || checkResult[0].values.length === 0) {
-        return res.status(404).json({ error: 'Ambulance request not found' });
+        return res.status(404).json({ error: "Ambulance request not found" });
       }
 
       const assignedStaffId = checkResult[0].values[0][0];
       if (assignedStaffId !== userId) {
-        return res.status(403).json({ error: 'You can only update requests assigned to you' });
+        return res
+          .status(403)
+          .json({ error: "You can only update requests assigned to you" });
       }
     }
 
     // Update the request status and notes
-    db.run(`
+    db.run(
+      `
       UPDATE ambulance_requests
       SET status = ?, notes = ?, updated_at = datetime('now')
       WHERE id = ?
-    `, [status, notes || null, requestId]);
+    `,
+      [status, notes || null, requestId],
+    );
 
-    console.log(`🚑 Ambulance request ${requestId} status updated to ${status} by user ${userId}`);
+    console.log(
+      `🚑 Ambulance request ${requestId} status updated to ${status} by user ${userId}`,
+    );
 
-    res.json({ message: 'Ambulance request status updated successfully' });
+    res.json({ message: "Ambulance request status updated successfully" });
   } catch (error) {
-    console.error('Update ambulance status error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Update ambulance status error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

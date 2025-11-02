@@ -41,14 +41,19 @@ export default function Notifications() {
   const fetchNotifications = async () => {
     try {
       // Get feedback with admin responses
-      const feedbackResponse = await fetch('/api/feedback/my', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+      const feedbackResponse = await fetch("/api/feedback/my", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
       });
 
       if (feedbackResponse.ok) {
         const feedbackData = await feedbackResponse.json();
         const feedbackNotifications = feedbackData.feedback
-          .filter((item: any) => item.admin_response && item.admin_response.trim() !== "")
+          .filter(
+            (item: any) =>
+              item.admin_response && item.admin_response.trim() !== "",
+          )
           .map((item: any) => ({
             id: item.id,
             type: "feedback_reply",
@@ -62,7 +67,7 @@ export default function Notifications() {
         setNotifications(feedbackNotifications);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error("Error fetching notifications:", error);
     } finally {
       setLoading(false);
     }
@@ -95,10 +100,10 @@ export default function Notifications() {
   };
 
   const markAsRead = (notificationId: number) => {
-    setNotifications(prev =>
-      prev.map(notif =>
-        notif.id === notificationId ? { ...notif, read: true } : notif
-      )
+    setNotifications((prev) =>
+      prev.map((notif) =>
+        notif.id === notificationId ? { ...notif, read: true } : notif,
+      ),
     );
   };
 
@@ -125,7 +130,7 @@ export default function Notifications() {
           </div>
           <div className="flex items-center space-x-4">
             <Badge variant="secondary" className="text-sm">
-              {notifications.filter(n => !n.read).length} unread
+              {notifications.filter((n) => !n.read).length} unread
             </Badge>
             <Button onClick={fetchNotifications} variant="outline" size="sm">
               Refresh
@@ -145,7 +150,9 @@ export default function Notifications() {
                   <div className="text-2xl font-bold text-gray-900">
                     {notifications.length}
                   </div>
-                  <div className="text-sm text-gray-600">Total Notifications</div>
+                  <div className="text-sm text-gray-600">
+                    Total Notifications
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -159,7 +166,10 @@ export default function Notifications() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {notifications.filter(n => n.type === 'feedback_reply').length}
+                    {
+                      notifications.filter((n) => n.type === "feedback_reply")
+                        .length
+                    }
                   </div>
                   <div className="text-sm text-gray-600">Feedback Replies</div>
                 </div>
@@ -175,7 +185,7 @@ export default function Notifications() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-gray-900">
-                    {notifications.filter(n => !n.read).length}
+                    {notifications.filter((n) => !n.read).length}
                   </div>
                   <div className="text-sm text-gray-600">Unread</div>
                 </div>
@@ -201,27 +211,35 @@ export default function Notifications() {
                     <div
                       key={notification.id}
                       className={`p-4 border rounded-lg transition-all hover:shadow-sm ${
-                        !notification.read 
-                          ? "border-blue-200 bg-blue-50/50" 
+                        !notification.read
+                          ? "border-blue-200 bg-blue-50/50"
                           : "border-gray-200 bg-white"
                       }`}
                     >
                       <div className="flex items-start gap-4">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                          !notification.read ? "bg-blue-500" : "bg-gray-400"
-                        }`}>
+                        <div
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            !notification.read ? "bg-blue-500" : "bg-gray-400"
+                          }`}
+                        >
                           <IconComponent className="w-5 h-5 text-white" />
                         </div>
-                        
+
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className={`font-medium ${
-                              !notification.read ? "text-gray-900" : "text-gray-700"
-                            }`}>
+                            <h3
+                              className={`font-medium ${
+                                !notification.read
+                                  ? "text-gray-900"
+                                  : "text-gray-700"
+                              }`}
+                            >
                               {notification.title}
                             </h3>
                             {notification.status && (
-                              <Badge className={getStatusColor(notification.status)}>
+                              <Badge
+                                className={getStatusColor(notification.status)}
+                              >
                                 {notification.status}
                               </Badge>
                             )}
@@ -231,19 +249,21 @@ export default function Notifications() {
                               </Badge>
                             )}
                           </div>
-                          
+
                           <p className="text-gray-600 text-sm mb-3 leading-relaxed">
                             {notification.message}
                           </p>
-                          
+
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1 text-xs text-gray-500">
                               <Clock className="w-3 h-3" />
                               <span>
-                                {new Date(notification.created_at).toLocaleString()}
+                                {new Date(
+                                  notification.created_at,
+                                ).toLocaleString()}
                               </span>
                             </div>
-                            
+
                             {!notification.read && (
                               <Button
                                 size="sm"
@@ -265,7 +285,8 @@ export default function Notifications() {
                   <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500">No notifications yet</p>
                   <p className="text-sm text-gray-400 mt-1">
-                    We'll notify you when there are updates on your feedback or appointments
+                    We'll notify you when there are updates on your feedback or
+                    appointments
                   </p>
                 </div>
               )}

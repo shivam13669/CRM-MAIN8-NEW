@@ -11,7 +11,10 @@ export interface ComplaintFeedback {
 }
 
 // Submit feedback on a closed complaint
-export const handleSubmitComplaintFeedback: RequestHandler = async (req, res) => {
+export const handleSubmitComplaintFeedback: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { userId } = (req as any).user;
     const { complaintId } = req.params;
@@ -31,13 +34,21 @@ export const handleSubmitComplaintFeedback: RequestHandler = async (req, res) =>
     }
 
     // Check if complaint exists and belongs to the user and is closed
-    const complaintResult = db.exec(`
+    const complaintResult = db.exec(
+      `
       SELECT id, customer_user_id, status
       FROM feedback_complaints
       WHERE id = ? AND customer_user_id = ?
-    `, [complaintId, userId]);
+    `,
+      [complaintId, userId],
+    );
 
-    if (!complaintResult || complaintResult.length === 0 || !complaintResult[0] || complaintResult[0].values.length === 0) {
+    if (
+      !complaintResult ||
+      complaintResult.length === 0 ||
+      !complaintResult[0] ||
+      complaintResult[0].values.length === 0
+    ) {
       return res.status(404).json({
         error: "Complaint not found or does not belong to you",
       });
@@ -46,22 +57,34 @@ export const handleSubmitComplaintFeedback: RequestHandler = async (req, res) =>
     const complaint = complaintResult[0].values[0];
     const complaintStatus = complaint[2];
 
-    if (complaintStatus !== 'closed') {
+    if (complaintStatus !== "closed") {
       return res.status(400).json({
         error: "You can only provide feedback on closed complaints",
       });
     }
 
     // Check if feedback already exists
-    const existingFeedbackResult = db.exec(`
+    const existingFeedbackResult = db.exec(
+      `
       SELECT id FROM complaint_feedback
       WHERE complaint_id = ? AND customer_user_id = ?
-    `, [complaintId, userId]);
+    `,
+      [complaintId, userId],
+    );
 
-    console.log(`🔍 Checking existing feedback for complaint ${complaintId} by user ${userId}:`, existingFeedbackResult);
+    console.log(
+      `🔍 Checking existing feedback for complaint ${complaintId} by user ${userId}:`,
+      existingFeedbackResult,
+    );
 
-    if (existingFeedbackResult && existingFeedbackResult.length > 0 && existingFeedbackResult[0].values.length > 0) {
-      console.log(`⚠️ User ${userId} already provided feedback for complaint ${complaintId}`);
+    if (
+      existingFeedbackResult &&
+      existingFeedbackResult.length > 0 &&
+      existingFeedbackResult[0].values.length > 0
+    ) {
+      console.log(
+        `⚠️ User ${userId} already provided feedback for complaint ${complaintId}`,
+      );
       return res.status(400).json({
         error: "You have already provided feedback for this complaint",
       });
@@ -70,27 +93,37 @@ export const handleSubmitComplaintFeedback: RequestHandler = async (req, res) =>
     // Insert complaint feedback with error handling for duplicates
     // Get current IST timestamp
     const istNow = new Date();
-    const istTime = new Date(istNow.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+    const istTime = new Date(
+      istNow.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+    );
 
     // Format as SQLite datetime: YYYY-MM-DD HH:MM:SS
     const year = istTime.getFullYear();
-    const month = (istTime.getMonth() + 1).toString().padStart(2, '0');
-    const day = istTime.getDate().toString().padStart(2, '0');
-    const hours = istTime.getHours().toString().padStart(2, '0');
-    const minutes = istTime.getMinutes().toString().padStart(2, '0');
-    const seconds = istTime.getSeconds().toString().padStart(2, '0');
+    const month = (istTime.getMonth() + 1).toString().padStart(2, "0");
+    const day = istTime.getDate().toString().padStart(2, "0");
+    const hours = istTime.getHours().toString().padStart(2, "0");
+    const minutes = istTime.getMinutes().toString().padStart(2, "0");
+    const seconds = istTime.getSeconds().toString().padStart(2, "0");
     const istTimestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
     let result;
     try {
-      result = db.exec(`
+      result = db.exec(
+        `
         INSERT INTO complaint_feedback
         (complaint_id, customer_user_id, rating, feedback_text, created_at)
         VALUES (?, ?, ?, ?, ?)
-      `, [complaintId, userId, rating, feedback_text || null, istTimestamp]);
+      `,
+        [complaintId, userId, rating, feedback_text || null, istTimestamp],
+      );
     } catch (dbError: any) {
-      if (dbError.message && dbError.message.includes('UNIQUE constraint failed')) {
-        console.log(`⚠️ Database-level duplicate feedback attempt by user ${userId} for complaint ${complaintId}`);
+      if (
+        dbError.message &&
+        dbError.message.includes("UNIQUE constraint failed")
+      ) {
+        console.log(
+          `⚠️ Database-level duplicate feedback attempt by user ${userId} for complaint ${complaintId}`,
+        );
         return res.status(400).json({
           error: "You have already provided feedback for this complaint",
         });
@@ -104,7 +137,9 @@ export const handleSubmitComplaintFeedback: RequestHandler = async (req, res) =>
     const lastIdResult = db.exec("SELECT last_insert_rowid() as id");
     const feedbackId = lastIdResult[0]?.values[0]?.[0] || 0;
 
-    console.log(`✅ Complaint feedback submitted with ID: ${feedbackId} for complaint: ${complaintId} by user: ${userId}`);
+    console.log(
+      `✅ Complaint feedback submitted with ID: ${feedbackId} for complaint: ${complaintId} by user: ${userId}`,
+    );
     console.log(`📊 Rating: ${rating}, Text: ${feedback_text}`);
 
     res.status(201).json({
@@ -124,14 +159,17 @@ export const handleGetComplaintFeedback: RequestHandler = async (req, res) => {
   try {
     const { complaintId } = req.params;
 
-    const result = db.exec(`
+    const result = db.exec(
+      `
       SELECT 
         cf.*,
         u.full_name as customer_name
       FROM complaint_feedback cf
       JOIN users u ON cf.customer_user_id = u.id
       WHERE cf.complaint_id = ?
-    `, [complaintId]);
+    `,
+      [complaintId],
+    );
 
     if (result.length === 0) {
       return res.json({ feedback: null });
@@ -145,7 +183,10 @@ export const handleGetComplaintFeedback: RequestHandler = async (req, res) => {
       feedback[col] = row[index];
     });
 
-    console.log(`📊 Retrieved feedback for complaint ${complaintId}:`, feedback);
+    console.log(
+      `📊 Retrieved feedback for complaint ${complaintId}:`,
+      feedback,
+    );
 
     res.json({ feedback });
   } catch (error) {
@@ -157,7 +198,10 @@ export const handleGetComplaintFeedback: RequestHandler = async (req, res) => {
 };
 
 // Get all complaint feedback for admin view
-export const handleGetAllComplaintFeedback: RequestHandler = async (req, res) => {
+export const handleGetAllComplaintFeedback: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { role } = (req as any).user;
 
@@ -176,7 +220,10 @@ export const handleGetAllComplaintFeedback: RequestHandler = async (req, res) =>
         AND name IN ('complaint_feedback', 'feedback_complaints', 'users')
         ORDER BY name
       `);
-      console.log("📋 Available tables:", tablesResult[0]?.values || "None found");
+      console.log(
+        "📋 Available tables:",
+        tablesResult[0]?.values || "None found",
+      );
     } catch (tableError) {
       console.error("❌ Error checking tables:", tableError);
     }
@@ -195,18 +242,29 @@ export const handleGetAllComplaintFeedback: RequestHandler = async (req, res) =>
         JOIN feedback_complaints fc ON cf.complaint_id = fc.id
         ORDER BY cf.created_at DESC
       `);
-      console.log("✅ Query executed successfully, result length:", result.length);
+      console.log(
+        "✅ Query executed successfully, result length:",
+        result.length,
+      );
     } catch (queryError) {
       console.error("❌ Query execution error:", queryError);
-      console.log("🔄 Trying simpler query to check complaint_feedback table...");
+      console.log(
+        "🔄 Trying simpler query to check complaint_feedback table...",
+      );
 
       try {
-        const simpleResult = db.exec("SELECT COUNT(*) as count FROM complaint_feedback");
-        console.log("📊 Complaint feedback count:", simpleResult[0]?.values[0]?.[0] || 0);
+        const simpleResult = db.exec(
+          "SELECT COUNT(*) as count FROM complaint_feedback",
+        );
+        console.log(
+          "📊 Complaint feedback count:",
+          simpleResult[0]?.values[0]?.[0] || 0,
+        );
       } catch (simpleError) {
         console.error("❌ Simple query also failed:", simpleError);
         return res.status(500).json({
-          error: "Database table structure issue. complaint_feedback table may not exist.",
+          error:
+            "Database table structure issue. complaint_feedback table may not exist.",
         });
       }
 
@@ -215,7 +273,12 @@ export const handleGetAllComplaintFeedback: RequestHandler = async (req, res) =>
       });
     }
 
-    if (!result || result.length === 0 || !result[0] || result[0].values.length === 0) {
+    if (
+      !result ||
+      result.length === 0 ||
+      !result[0] ||
+      result[0].values.length === 0
+    ) {
       console.log("ℹ️ No complaint feedback found, returning empty array");
       return res.json({ feedback: [], total: 0 });
     }
@@ -231,7 +294,9 @@ export const handleGetAllComplaintFeedback: RequestHandler = async (req, res) =>
       return item;
     });
 
-    console.log(`📊 Retrieved ${feedback.length} complaint feedbacks for admin dashboard`);
+    console.log(
+      `📊 Retrieved ${feedback.length} complaint feedbacks for admin dashboard`,
+    );
     console.log(`🔍 Sample feedback data:`, feedback.slice(0, 2));
 
     res.json({ feedback, total: feedback.length });

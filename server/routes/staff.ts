@@ -1,13 +1,15 @@
 import { RequestHandler } from "express";
-import { db } from '../database';
+import { db } from "../database";
 
 // Get staff appointments (emergency-related and general appointments)
 export const handleGetStaffAppointments: RequestHandler = async (req, res) => {
   try {
     const { role, userId } = (req as any).user;
-    
-    if (role !== 'staff') {
-      return res.status(403).json({ error: 'Only staff can access this endpoint' });
+
+    if (role !== "staff") {
+      return res
+        .status(403)
+        .json({ error: "Only staff can access this endpoint" });
     }
 
     // Get appointments that are related to ambulance requests or general appointments
@@ -36,8 +38,8 @@ export const handleGetStaffAppointments: RequestHandler = async (req, res) => {
     if (result.length > 0) {
       const columns = result[0].columns;
       const rows = result[0].values;
-      
-      rows.forEach(row => {
+
+      rows.forEach((row) => {
         const appointment: any = {};
         columns.forEach((col, index) => {
           appointment[col] = row[index];
@@ -48,8 +50,8 @@ export const handleGetStaffAppointments: RequestHandler = async (req, res) => {
 
     res.json({ appointments });
   } catch (error) {
-    console.error('Get staff appointments error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Get staff appointments error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -57,9 +59,11 @@ export const handleGetStaffAppointments: RequestHandler = async (req, res) => {
 export const handleGetStaffReports: RequestHandler = async (req, res) => {
   try {
     const { role, userId } = (req as any).user;
-    
-    if (role !== 'staff') {
-      return res.status(403).json({ error: 'Only staff can access this endpoint' });
+
+    if (role !== "staff") {
+      return res
+        .status(403)
+        .json({ error: "Only staff can access this endpoint" });
     }
 
     const period = parseInt(req.query.period as string) || 30;
@@ -67,7 +71,8 @@ export const handleGetStaffReports: RequestHandler = async (req, res) => {
     startDate.setDate(startDate.getDate() - period);
 
     // Get ambulance requests assigned to this staff member
-    const result = db.exec(`
+    const result = db.exec(
+      `
       SELECT
         ar.id,
         ar.status,
@@ -81,14 +86,16 @@ export const handleGetStaffReports: RequestHandler = async (req, res) => {
       WHERE ar.assigned_staff_id = ?
       AND ar.created_at >= datetime('now', '-${period} days')
       ORDER BY ar.created_at DESC
-    `, [userId]);
+    `,
+      [userId],
+    );
 
     const requests = [];
     if (result.length > 0) {
       const columns = result[0].columns;
       const rows = result[0].values;
-      
-      rows.forEach(row => {
+
+      rows.forEach((row) => {
         const request: any = {};
         columns.forEach((col, index) => {
           request[col] = row[index];
@@ -99,35 +106,43 @@ export const handleGetStaffReports: RequestHandler = async (req, res) => {
 
     // Calculate stats
     const totalAssigned = requests.length;
-    const completedRequests = requests.filter(r => r.status === 'completed').length;
-    const monthlyCompletion = totalAssigned > 0 ? Math.round((completedRequests / totalAssigned) * 100) : 0;
+    const completedRequests = requests.filter(
+      (r) => r.status === "completed",
+    ).length;
+    const monthlyCompletion =
+      totalAssigned > 0
+        ? Math.round((completedRequests / totalAssigned) * 100)
+        : 0;
 
     // Generate weekly stats (simplified)
     const weeklyStats = [];
     for (let i = 0; i < 4; i++) {
       const weekStart = new Date();
-      weekStart.setDate(weekStart.getDate() - ((4 - i) * 7));
+      weekStart.setDate(weekStart.getDate() - (4 - i) * 7);
       const weekEnd = new Date();
-      weekEnd.setDate(weekEnd.getDate() - ((3 - i) * 7));
-      
-      const weekRequests = requests.filter(r => {
+      weekEnd.setDate(weekEnd.getDate() - (3 - i) * 7);
+
+      const weekRequests = requests.filter((r) => {
         const requestDate = new Date(r.created_at);
         return requestDate >= weekStart && requestDate < weekEnd;
       });
-      
+
       weeklyStats.push({
         week: `Week ${i + 1}`,
         assigned: weekRequests.length,
-        completed: weekRequests.filter(r => r.status === 'completed').length
+        completed: weekRequests.filter((r) => r.status === "completed").length,
       });
     }
 
     // Generate recent activity
-    const recentActivity = requests.slice(0, 5).map(request => ({
+    const recentActivity = requests.slice(0, 5).map((request) => ({
       date: request.updated_at || request.created_at,
-      action: request.status === 'completed' ? 'Completed Emergency Request' : 'Assigned New Request',
+      action:
+        request.status === "completed"
+          ? "Completed Emergency Request"
+          : "Assigned New Request",
       details: `${request.emergency_type} - ${request.pickup_address}`,
-      type: request.status === 'completed' ? 'completion' : 'assignment'
+      type: request.status === "completed" ? "completion" : "assignment",
     }));
 
     const stats = {
@@ -136,13 +151,13 @@ export const handleGetStaffReports: RequestHandler = async (req, res) => {
       averageResponseTime: "8.5 minutes", // This would need more complex calculation
       monthlyCompletion,
       weeklyStats,
-      recentActivity
+      recentActivity,
     };
 
     res.json({ stats });
   } catch (error) {
-    console.error('Get staff reports error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Get staff reports error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -151,8 +166,10 @@ export const handleGetStaffFeedback: RequestHandler = async (req, res) => {
   try {
     const { role, userId } = (req as any).user;
 
-    if (role !== 'staff') {
-      return res.status(403).json({ error: 'Only staff can access this endpoint' });
+    if (role !== "staff") {
+      return res
+        .status(403)
+        .json({ error: "Only staff can access this endpoint" });
     }
 
     console.log(`🔍 Getting staff feedback for user ${userId}`);
@@ -189,7 +206,7 @@ export const handleGetStaffFeedback: RequestHandler = async (req, res) => {
       const columns = result[0].columns;
       const rows = result[0].values;
 
-      rows.forEach(row => {
+      rows.forEach((row) => {
         const feedback: any = {};
         columns.forEach((col, index) => {
           feedback[col] = row[index];
@@ -202,8 +219,8 @@ export const handleGetStaffFeedback: RequestHandler = async (req, res) => {
 
     res.json({ feedbacks, total: feedbacks.length });
   } catch (error) {
-    console.error('Get staff feedback error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Get staff feedback error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -212,26 +229,35 @@ export const handleRespondToFeedback: RequestHandler = async (req, res) => {
   try {
     const { role, userId } = (req as any).user;
 
-    if (role !== 'staff') {
-      return res.status(403).json({ error: 'Only staff can respond to feedback' });
+    if (role !== "staff") {
+      return res
+        .status(403)
+        .json({ error: "Only staff can respond to feedback" });
     }
 
     const feedbackId = parseInt(req.params.feedbackId);
     const { response } = req.body;
 
     if (!response || !response.trim()) {
-      return res.status(400).json({ error: 'Response text is required' });
+      return res.status(400).json({ error: "Response text is required" });
     }
 
     console.log(`📝 Staff ${userId} responding to feedback ${feedbackId}`);
 
     // Check if the feedback exists in feedback_complaints table
-    const checkFeedback = db.exec(`
+    const checkFeedback = db.exec(
+      `
       SELECT id, status FROM feedback_complaints WHERE id = ?
-    `, [feedbackId]);
+    `,
+      [feedbackId],
+    );
 
-    if (!checkFeedback || checkFeedback.length === 0 || checkFeedback[0].values.length === 0) {
-      return res.status(404).json({ error: 'Feedback not found' });
+    if (
+      !checkFeedback ||
+      checkFeedback.length === 0 ||
+      checkFeedback[0].values.length === 0
+    ) {
+      return res.status(404).json({ error: "Feedback not found" });
     }
 
     // Create staff_responses table if it doesn't exist
@@ -248,32 +274,38 @@ export const handleRespondToFeedback: RequestHandler = async (req, res) => {
         )
       `);
     } catch (tableError) {
-      console.log('Table creation skipped or already exists');
+      console.log("Table creation skipped or already exists");
     }
 
     // Insert response
-    db.run(`
+    db.run(
+      `
       INSERT INTO staff_responses (feedback_id, staff_id, response_text, created_at)
       VALUES (?, ?, ?, datetime('now'))
-    `, [feedbackId, userId, response.trim()]);
+    `,
+      [feedbackId, userId, response.trim()],
+    );
 
     // Update feedback status to show staff has responded
-    db.run(`
+    db.run(
+      `
       UPDATE feedback_complaints
       SET status = 'in_review', updated_at = datetime('now')
       WHERE id = ? AND status = 'pending'
-    `, [feedbackId]);
+    `,
+      [feedbackId],
+    );
 
     // Save database changes
-    const { saveDatabase } = require('../database');
+    const { saveDatabase } = require("../database");
     saveDatabase();
 
     console.log(`✅ Staff response submitted for feedback ${feedbackId}`);
 
-    res.json({ message: 'Response submitted successfully' });
+    res.json({ message: "Response submitted successfully" });
   } catch (error) {
-    console.error('Respond to feedback error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Respond to feedback error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -281,14 +313,16 @@ export const handleRespondToFeedback: RequestHandler = async (req, res) => {
 export const handleGetStaffInventory: RequestHandler = async (req, res) => {
   try {
     const { role } = (req as any).user;
-    
-    if (role !== 'staff') {
-      return res.status(403).json({ error: 'Only staff can access inventory' });
+
+    if (role !== "staff") {
+      return res.status(403).json({ error: "Only staff can access inventory" });
     }
 
     // Check if inventory table exists, if not create it with sample data
     try {
-      const checkTable = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='inventory_items'");
+      const checkTable = db.exec(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='inventory_items'",
+      );
       if (checkTable.length === 0) {
         // Create table
         db.exec(`
@@ -310,24 +344,97 @@ export const handleGetStaffInventory: RequestHandler = async (req, res) => {
 
         // Insert sample data
         const sampleItems = [
-          ['Oxygen Masks', 'respiratory', 15, 10, 50, 'pieces', 'Ambulance A1', 'Adult oxygen masks for emergency use', null],
-          ['Defibrillator Pads', 'cardiac', 3, 5, 20, 'sets', 'Ambulance A1', 'AED electrode pads', null],
-          ['Bandages', 'wound_care', 2, 10, 100, 'rolls', 'Ambulance A2', 'Sterile gauze bandages', null],
-          ['IV Fluids', 'medication', 8, 5, 30, 'bags', 'Storage Room', 'Normal saline IV bags', '2025-12-31'],
-          ['Disposable Gloves', 'ppe', 0, 50, 500, 'pairs', 'Ambulance A1', 'Latex-free medical gloves', null],
-          ['Emergency Blankets', 'equipment', 12, 8, 40, 'pieces', 'Ambulance A2', 'Thermal emergency blankets', null],
-          ['Blood Pressure Cuffs', 'equipment', 4, 3, 15, 'pieces', 'Storage Room', 'Manual BP monitoring cuffs', null],
+          [
+            "Oxygen Masks",
+            "respiratory",
+            15,
+            10,
+            50,
+            "pieces",
+            "Ambulance A1",
+            "Adult oxygen masks for emergency use",
+            null,
+          ],
+          [
+            "Defibrillator Pads",
+            "cardiac",
+            3,
+            5,
+            20,
+            "sets",
+            "Ambulance A1",
+            "AED electrode pads",
+            null,
+          ],
+          [
+            "Bandages",
+            "wound_care",
+            2,
+            10,
+            100,
+            "rolls",
+            "Ambulance A2",
+            "Sterile gauze bandages",
+            null,
+          ],
+          [
+            "IV Fluids",
+            "medication",
+            8,
+            5,
+            30,
+            "bags",
+            "Storage Room",
+            "Normal saline IV bags",
+            "2025-12-31",
+          ],
+          [
+            "Disposable Gloves",
+            "ppe",
+            0,
+            50,
+            500,
+            "pairs",
+            "Ambulance A1",
+            "Latex-free medical gloves",
+            null,
+          ],
+          [
+            "Emergency Blankets",
+            "equipment",
+            12,
+            8,
+            40,
+            "pieces",
+            "Ambulance A2",
+            "Thermal emergency blankets",
+            null,
+          ],
+          [
+            "Blood Pressure Cuffs",
+            "equipment",
+            4,
+            3,
+            15,
+            "pieces",
+            "Storage Room",
+            "Manual BP monitoring cuffs",
+            null,
+          ],
         ];
 
-        sampleItems.forEach(item => {
-          db.run(`
+        sampleItems.forEach((item) => {
+          db.run(
+            `
             INSERT INTO inventory_items (name, category, current_stock, min_threshold, max_capacity, unit, location, description, expiry_date)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `, item);
+          `,
+            item,
+          );
         });
       }
     } catch (tableError) {
-      console.log('Inventory table setup:', tableError);
+      console.log("Inventory table setup:", tableError);
     }
 
     // Get inventory items
@@ -365,8 +472,8 @@ export const handleGetStaffInventory: RequestHandler = async (req, res) => {
     if (result.length > 0) {
       const columns = result[0].columns;
       const rows = result[0].values;
-      
-      rows.forEach(row => {
+
+      rows.forEach((row) => {
         const item: any = {};
         columns.forEach((col, index) => {
           item[col] = row[index];
@@ -377,8 +484,8 @@ export const handleGetStaffInventory: RequestHandler = async (req, res) => {
 
     res.json({ inventory });
   } catch (error) {
-    console.error('Get staff inventory error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Get staff inventory error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -386,20 +493,22 @@ export const handleGetStaffInventory: RequestHandler = async (req, res) => {
 export const handleReportLowStock: RequestHandler = async (req, res) => {
   try {
     const { role, userId } = (req as any).user;
-    
-    if (role !== 'staff') {
-      return res.status(403).json({ error: 'Only staff can report low stock' });
+
+    if (role !== "staff") {
+      return res.status(403).json({ error: "Only staff can report low stock" });
     }
 
     const itemId = parseInt(req.params.itemId);
 
     // In a real system, this would create a notification or task for management
     // For now, we'll just log it and return success
-    console.log(`🚨 Low stock reported by staff ${userId} for inventory item ${itemId}`);
+    console.log(
+      `🚨 Low stock reported by staff ${userId} for inventory item ${itemId}`,
+    );
 
-    res.json({ message: 'Low stock report submitted successfully' });
+    res.json({ message: "Low stock report submitted successfully" });
   } catch (error) {
-    console.error('Report low stock error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Report low stock error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };

@@ -83,39 +83,66 @@ function App() {
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/memberships" element={<Memberships />} />
             <Route path="/ambulance" element={<Ambulance />} />
-            <Route path="/ambulance-management" element={<AmbulanceManagement />} />
+            <Route
+              path="/ambulance-management"
+              element={<AmbulanceManagement />}
+            />
             <Route path="/inventory" element={<InventoryManagement />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/user-management" element={<UserManagement />} />
-            <Route path="/feedback-management" element={<FeedbackManagement />} />
-            <Route path="/complaint-feedback-management" element={<ComplaintFeedbackManagement />} />
-            <Route path="/admin-notifications" element={<AdminNotifications />} />
+            <Route
+              path="/feedback-management"
+              element={<FeedbackManagement />}
+            />
+            <Route
+              path="/complaint-feedback-management"
+              element={<ComplaintFeedbackManagement />}
+            />
+            <Route
+              path="/admin-notifications"
+              element={<AdminNotifications />}
+            />
 
             {/* Customer Dashboard and pages */}
             <Route path="/customer-dashboard" element={<CustomerDashboard />} />
             <Route path="/book-appointment" element={<BookAppointment />} />
             <Route path="/request-ambulance" element={<RequestAmbulance />} />
-            <Route path="/my-ambulance-requests" element={<MyAmbulanceRequests />} />
+            <Route
+              path="/my-ambulance-requests"
+              element={<MyAmbulanceRequests />}
+            />
             <Route path="/medical-reports" element={<MedicalReports />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/notifications" element={<Notifications />} />
-            <Route path="/customer-notifications" element={<CustomerNotifications />} />
+            <Route
+              path="/customer-notifications"
+              element={<CustomerNotifications />}
+            />
             <Route path="/payments" element={<Payments />} />
             <Route path="/customer-profile" element={<CustomerProfile />} />
 
             {/* Other role-specific dashboards */}
             <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-            <Route path="/doctor-notifications" element={<DoctorNotifications />} />
+            <Route
+              path="/doctor-notifications"
+              element={<DoctorNotifications />}
+            />
             <Route path="/doctor-profile" element={<DoctorProfile />} />
             <Route path="/staff-dashboard" element={<StaffDashboard />} />
-            <Route path="/staff-ambulance-management" element={<StaffAmbulanceManagement />} />
+            <Route
+              path="/staff-ambulance-management"
+              element={<StaffAmbulanceManagement />}
+            />
             <Route path="/staff-appointments" element={<StaffAppointments />} />
             <Route path="/staff-reports" element={<StaffReports />} />
             <Route path="/staff-feedback" element={<StaffFeedback />} />
             <Route path="/staff-inventory" element={<StaffInventory />} />
-            <Route path="/staff-notifications" element={<StaffNotifications />} />
+            <Route
+              path="/staff-notifications"
+              element={<StaffNotifications />}
+            />
             <Route path="/staff-profile" element={<StaffProfile />} />
             <Route path="/my-patients" element={<MyPatients />} />
             <Route path="/staff-dashboard" element={<StaffDashboard />} />

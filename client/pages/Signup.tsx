@@ -182,26 +182,27 @@ export default function Signup() {
             {error && (
               <div className="mt-4 p-4 bg-red-50 rounded-lg">
                 <p className="text-sm text-red-800">{error}</p>
-                {(error.includes("already exists") || error.includes("already in use")) &&
-                 import.meta.env.DEV && (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const { debugApi } = await import("../lib/debug");
-                      const result = await debugApi.resetDatabase();
-                      if ("message" in result) {
-                        alert(
-                          "Database reset! Please restart server and try again.",
-                        );
-                      } else {
-                        alert("Reset failed: " + result.error);
-                      }
-                    }}
-                    className="mt-2 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                  >
-                    🔄 Reset Database (Dev Only)
-                  </button>
-                )}
+                {(error.includes("already exists") ||
+                  error.includes("already in use")) &&
+                  import.meta.env.DEV && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const { debugApi } = await import("../lib/debug");
+                        const result = await debugApi.resetDatabase();
+                        if ("message" in result) {
+                          alert(
+                            "Database reset! Please restart server and try again.",
+                          );
+                        } else {
+                          alert("Reset failed: " + result.error);
+                        }
+                      }}
+                      className="mt-2 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                    >
+                      🔄 Reset Database (Dev Only)
+                    </button>
+                  )}
               </div>
             )}
           </div>
@@ -248,7 +249,7 @@ export default function Signup() {
                 onInput={(e) => {
                   // Only allow numeric input
                   const input = e.target as HTMLInputElement;
-                  input.value = input.value.replace(/[^0-9]/g, '');
+                  input.value = input.value.replace(/[^0-9]/g, "");
                   if (input.value.length > 10) {
                     input.value = input.value.slice(0, 10);
                   }

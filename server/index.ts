@@ -78,7 +78,10 @@ import {
 } from "./routes/staff";
 import { handleCreateTestAmbulanceRequest } from "./routes/create-test-ambulance";
 import { handleTestPatientAmbulanceRequests } from "./routes/test-patient-ambulance";
-import { handleDebugAuth, handleDebugPatientAmbulanceWithAuth } from "./routes/debug-auth";
+import {
+  handleDebugAuth,
+  handleDebugPatientAmbulanceWithAuth,
+} from "./routes/debug-auth";
 import { handleSimpleAmbulanceTest } from "./routes/simple-ambulance-test";
 import { initDatabase } from "./database";
 import { initializeAdmin } from "./admin-init";
@@ -127,10 +130,26 @@ export async function createServer() {
   // Ambulance routes (staff + admin for viewing, customers for creating)
   app.post("/api/ambulance", authenticateToken, handleCreateAmbulanceRequest);
   app.get("/api/ambulance", authenticateToken, handleGetAmbulanceRequests);
-  app.get("/api/ambulance/customer", authenticateToken, handleGetCustomerAmbulanceRequests);
-  app.post("/api/ambulance/:requestId/assign", authenticateToken, handleAssignAmbulanceRequest);
-  app.put("/api/ambulance/:requestId/status", authenticateToken, handleUpdateAmbulanceStatus);
-  app.put("/api/ambulance/requests/:requestId", authenticateToken, handleUpdateAmbulanceRequest);
+  app.get(
+    "/api/ambulance/customer",
+    authenticateToken,
+    handleGetCustomerAmbulanceRequests,
+  );
+  app.post(
+    "/api/ambulance/:requestId/assign",
+    authenticateToken,
+    handleAssignAmbulanceRequest,
+  );
+  app.put(
+    "/api/ambulance/:requestId/status",
+    authenticateToken,
+    handleUpdateAmbulanceStatus,
+  );
+  app.put(
+    "/api/ambulance/requests/:requestId",
+    authenticateToken,
+    handleUpdateAmbulanceRequest,
+  );
 
   // Appointment routes (doctors + admin for viewing, customers for creating)
   app.post("/api/appointments", authenticateToken, handleCreateAppointment);
@@ -193,26 +212,66 @@ export async function createServer() {
     authenticateToken,
     handleUpdateFeedbackStatus,
   );
-  app.get("/api/admin/feedback/stats", authenticateToken, handleGetFeedbackStats);
+  app.get(
+    "/api/admin/feedback/stats",
+    authenticateToken,
+    handleGetFeedbackStats,
+  );
 
   // Complaint Feedback routes (customer feedback on closed complaints)
-  app.post("/api/complaint/:complaintId/feedback", authenticateToken, handleSubmitComplaintFeedback);
-  app.get("/api/complaint/:complaintId/feedback", authenticateToken, handleGetComplaintFeedback);
-  app.get("/api/admin/complaint-feedback", authenticateToken, handleGetAllComplaintFeedback);
+  app.post(
+    "/api/complaint/:complaintId/feedback",
+    authenticateToken,
+    handleSubmitComplaintFeedback,
+  );
+  app.get(
+    "/api/complaint/:complaintId/feedback",
+    authenticateToken,
+    handleGetComplaintFeedback,
+  );
+  app.get(
+    "/api/admin/complaint-feedback",
+    authenticateToken,
+    handleGetAllComplaintFeedback,
+  );
 
   // Notifications routes
   app.get("/api/notifications", authenticateToken, handleGetNotifications);
-  app.get("/api/notifications/customer", authenticateToken, handleGetCustomerNotifications);
-  app.post("/api/notifications/:notificationId/read", authenticateToken, handleMarkNotificationRead);
-  app.post("/api/notifications/mark-all-read", authenticateToken, handleMarkAllNotificationsRead);
+  app.get(
+    "/api/notifications/customer",
+    authenticateToken,
+    handleGetCustomerNotifications,
+  );
+  app.post(
+    "/api/notifications/:notificationId/read",
+    authenticateToken,
+    handleMarkNotificationRead,
+  );
+  app.post(
+    "/api/notifications/mark-all-read",
+    authenticateToken,
+    handleMarkAllNotificationsRead,
+  );
 
   // Staff-specific routes
-  app.get("/api/staff/appointments", authenticateToken, handleGetStaffAppointments);
+  app.get(
+    "/api/staff/appointments",
+    authenticateToken,
+    handleGetStaffAppointments,
+  );
   app.get("/api/staff/reports", authenticateToken, handleGetStaffReports);
   app.get("/api/staff/feedback", authenticateToken, handleGetStaffFeedback);
-  app.post("/api/staff/feedback/:feedbackId/respond", authenticateToken, handleRespondToFeedback);
+  app.post(
+    "/api/staff/feedback/:feedbackId/respond",
+    authenticateToken,
+    handleRespondToFeedback,
+  );
   app.get("/api/staff/inventory", authenticateToken, handleGetStaffInventory);
-  app.post("/api/staff/inventory/:itemId/report-low", authenticateToken, handleReportLowStock);
+  app.post(
+    "/api/staff/inventory/:itemId/report-low",
+    authenticateToken,
+    handleReportLowStock,
+  );
 
   // Debug routes (for development only)
   app.get("/api/debug/database", handleDatabaseDebug);
@@ -220,10 +279,20 @@ export async function createServer() {
   app.delete("/api/debug/clear-users", handleClearUsers);
   app.post("/api/debug/reset-database", handleDatabaseReset);
   app.post("/api/debug/create-pending-table", handleCreatePendingTable);
-  app.post("/api/debug/create-test-ambulance", handleCreateTestAmbulanceRequest);
-  app.get("/api/debug/test-customer-ambulance", handleTestPatientAmbulanceRequests);
+  app.post(
+    "/api/debug/create-test-ambulance",
+    handleCreateTestAmbulanceRequest,
+  );
+  app.get(
+    "/api/debug/test-customer-ambulance",
+    handleTestPatientAmbulanceRequests,
+  );
   app.get("/api/debug/auth", authenticateToken, handleDebugAuth);
-  app.get("/api/debug/customer-ambulance-with-auth", authenticateToken, handleDebugPatientAmbulanceWithAuth);
+  app.get(
+    "/api/debug/customer-ambulance-with-auth",
+    authenticateToken,
+    handleDebugPatientAmbulanceWithAuth,
+  );
   app.get("/api/debug/simple-ambulance-test", handleSimpleAmbulanceTest);
 
   return app;

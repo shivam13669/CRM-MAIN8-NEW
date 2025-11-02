@@ -252,7 +252,7 @@ export default function RequestAmbulance() {
                       minLength={10}
                       onInput={(e) => {
                         const input = e.target as HTMLInputElement;
-                        input.value = input.value.replace(/[^0-9]/g, '');
+                        input.value = input.value.replace(/[^0-9]/g, "");
                         if (input.value.length > 10) {
                           input.value = input.value.slice(0, 10);
                         }

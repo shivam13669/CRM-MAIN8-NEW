@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
 import { CustomerLayout } from "../components/CustomerLayout";
-import { 
-  Truck, 
-  Clock, 
-  User, 
-  Phone, 
-  MapPin, 
+import {
+  Truck,
+  Clock,
+  User,
+  Phone,
+  MapPin,
   AlertTriangle,
   CheckCircle,
   RefreshCw,
   Calendar,
-  FileText
+  FileText,
 } from "lucide-react";
 import {
   Card,
@@ -48,20 +48,20 @@ export default function MyAmbulanceRequests() {
     try {
       if (showRefreshing) setRefreshing(true);
 
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        console.error('No token found - user needs to log in');
+        console.error("No token found - user needs to log in");
         setAuthError(true);
         setRequests([]);
         return;
       }
 
       setAuthError(false);
-      const response = await fetch('/api/ambulance/customer', {
+      const response = await fetch("/api/ambulance/customer", {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {
@@ -72,12 +72,12 @@ export default function MyAmbulanceRequests() {
         setAuthError(true);
         setRequests([]);
       } else {
-        console.error('Failed to fetch ambulance requests:', response.status);
+        console.error("Failed to fetch ambulance requests:", response.status);
         const errorData = await response.json().catch(() => ({}));
-        console.error('Error response:', errorData);
+        console.error("Error response:", errorData);
       }
     } catch (error) {
-      console.error('Error fetching ambulance requests:', error);
+      console.error("Error fetching ambulance requests:", error);
     } finally {
       setLoading(false);
       if (showRefreshing) setRefreshing(false);
@@ -99,24 +99,44 @@ export default function MyAmbulanceRequests() {
   useEffect(() => {
     if (authError) {
       // Clear any invalid tokens
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userId');
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userId");
     }
   }, [authError]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case 'assigned':
-        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Assigned</Badge>;
-      case 'on_the_way':
-        return <Badge variant="secondary" className="bg-orange-100 text-orange-800">On The Way</Badge>;
-      case 'completed':
-        return <Badge variant="secondary" className="bg-green-100 text-green-800">Completed</Badge>;
-      case 'cancelled':
-        return <Badge variant="secondary" className="bg-red-100 text-red-800">Cancelled</Badge>;
+      case "pending":
+        return (
+          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+            Pending
+          </Badge>
+        );
+      case "assigned":
+        return (
+          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+            Assigned
+          </Badge>
+        );
+      case "on_the_way":
+        return (
+          <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+            On The Way
+          </Badge>
+        );
+      case "completed":
+        return (
+          <Badge variant="secondary" className="bg-green-100 text-green-800">
+            Completed
+          </Badge>
+        );
+      case "cancelled":
+        return (
+          <Badge variant="secondary" className="bg-red-100 text-red-800">
+            Cancelled
+          </Badge>
+        );
       default:
         return <Badge variant="secondary">Unknown</Badge>;
     }
@@ -124,14 +144,26 @@ export default function MyAmbulanceRequests() {
 
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
-      case 'critical':
+      case "critical":
         return <Badge variant="destructive">Critical</Badge>;
-      case 'high':
-        return <Badge variant="secondary" className="bg-red-100 text-red-800">High</Badge>;
-      case 'normal':
-        return <Badge variant="secondary" className="bg-gray-100 text-gray-800">Normal</Badge>;
-      case 'low':
-        return <Badge variant="secondary" className="bg-green-100 text-green-800">Low</Badge>;
+      case "high":
+        return (
+          <Badge variant="secondary" className="bg-red-100 text-red-800">
+            High
+          </Badge>
+        );
+      case "normal":
+        return (
+          <Badge variant="secondary" className="bg-gray-100 text-gray-800">
+            Normal
+          </Badge>
+        );
+      case "low":
+        return (
+          <Badge variant="secondary" className="bg-green-100 text-green-800">
+            Low
+          </Badge>
+        );
       default:
         return <Badge variant="secondary">Normal</Badge>;
     }
@@ -139,13 +171,13 @@ export default function MyAmbulanceRequests() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending':
+      case "pending":
         return <Clock className="w-4 h-4 text-yellow-600" />;
-      case 'assigned':
+      case "assigned":
         return <User className="w-4 h-4 text-blue-600" />;
-      case 'on_the_way':
+      case "on_the_way":
         return <Truck className="w-4 h-4 text-orange-600" />;
-      case 'completed':
+      case "completed":
         return <CheckCircle className="w-4 h-4 text-green-600" />;
       default:
         return <Clock className="w-4 h-4 text-gray-600" />;
@@ -154,28 +186,30 @@ export default function MyAmbulanceRequests() {
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getTimeAgo = (dateString: string) => {
     const now = new Date();
     const past = new Date(dateString);
-    const diffInMinutes = Math.floor((now.getTime() - past.getTime()) / (1000 * 60));
+    const diffInMinutes = Math.floor(
+      (now.getTime() - past.getTime()) / (1000 * 60),
+    );
 
     if (diffInMinutes < 60) {
       return `${diffInMinutes} minutes ago`;
     } else if (diffInMinutes < 1440) {
       const hours = Math.floor(diffInMinutes / 60);
-      return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+      return `${hours} hour${hours > 1 ? "s" : ""} ago`;
     } else {
       const days = Math.floor(diffInMinutes / 1440);
-      return `${days} day${days > 1 ? 's' : ''} ago`;
+      return `${days} day${days > 1 ? "s" : ""} ago`;
     }
   };
 
@@ -184,7 +218,9 @@ export default function MyAmbulanceRequests() {
       <PatientLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span className="ml-2 text-gray-600">Loading your ambulance requests...</span>
+          <span className="ml-2 text-gray-600">
+            Loading your ambulance requests...
+          </span>
         </div>
       </PatientLayout>
     );
@@ -196,15 +232,21 @@ export default function MyAmbulanceRequests() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Ambulance Requests</h1>
-            <p className="text-gray-600 mt-1">Track your emergency ambulance service requests</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              My Ambulance Requests
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Track your emergency ambulance service requests
+            </p>
           </div>
           <Button
             onClick={() => fetchRequests(true)}
             disabled={refreshing}
             className="flex items-center space-x-2"
           >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+            />
             <span>Refresh</span>
           </Button>
         </div>
@@ -215,13 +257,16 @@ export default function MyAmbulanceRequests() {
             <div className="flex items-center">
               <AlertTriangle className="w-6 h-6 text-yellow-500 mr-3" />
               <div>
-                <h3 className="text-lg font-semibold text-yellow-800">Authentication Required</h3>
+                <h3 className="text-lg font-semibold text-yellow-800">
+                  Authentication Required
+                </h3>
                 <p className="text-yellow-700 mt-1">
-                  Please log out and log back in to access your ambulance requests.
+                  Please log out and log back in to access your ambulance
+                  requests.
                 </p>
               </div>
               <Button
-                onClick={() => window.location.href = '/login'}
+                onClick={() => (window.location.href = "/login")}
                 className="ml-auto"
               >
                 Go to Login
@@ -235,13 +280,17 @@ export default function MyAmbulanceRequests() {
           <div className="flex items-center">
             <AlertTriangle className="w-6 h-6 text-red-500 mr-3" />
             <div>
-              <h3 className="text-lg font-semibold text-red-800">Emergency Contact</h3>
-              <p className="text-red-700">For urgent emergencies, call 108 immediately</p>
+              <h3 className="text-lg font-semibold text-red-800">
+                Emergency Contact
+              </h3>
+              <p className="text-red-700">
+                For urgent emergencies, call 108 immediately
+              </p>
             </div>
             <Button
               variant="destructive"
               className="ml-auto bg-red-600 hover:bg-red-700"
-              onClick={() => window.open('tel:108')}
+              onClick={() => window.open("tel:108")}
             >
               <Phone className="w-4 h-4 mr-2" />
               Call 108
@@ -254,9 +303,15 @@ export default function MyAmbulanceRequests() {
           <Card>
             <CardContent className="py-12 text-center">
               <Truck className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Ambulance Requests</h3>
-              <p className="text-gray-600 mb-4">You haven't made any ambulance requests yet.</p>
-              <Button onClick={() => window.location.href = '/request-ambulance'}>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No Ambulance Requests
+              </h3>
+              <p className="text-gray-600 mb-4">
+                You haven't made any ambulance requests yet.
+              </p>
+              <Button
+                onClick={() => (window.location.href = "/request-ambulance")}
+              >
                 <Truck className="w-4 h-4 mr-2" />
                 Request Ambulance
               </Button>
@@ -275,7 +330,9 @@ export default function MyAmbulanceRequests() {
                           {request.emergency_type}
                         </CardTitle>
                         <CardDescription>
-                          Request #{request.id} • {formatDateTime(request.created_at)} • {getTimeAgo(request.created_at)}
+                          Request #{request.id} •{" "}
+                          {formatDateTime(request.created_at)} •{" "}
+                          {getTimeAgo(request.created_at)}
                         </CardDescription>
                       </div>
                     </div>
@@ -291,9 +348,13 @@ export default function MyAmbulanceRequests() {
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <div className="flex items-center space-x-2 mb-2">
                         <FileText className="w-4 h-4 text-gray-600" />
-                        <span className="font-medium text-gray-900">Patient Condition</span>
+                        <span className="font-medium text-gray-900">
+                          Patient Condition
+                        </span>
                       </div>
-                      <p className="text-gray-700 text-sm">{request.patient_condition}</p>
+                      <p className="text-gray-700 text-sm">
+                        {request.patient_condition}
+                      </p>
                     </div>
                   )}
 
@@ -301,8 +362,12 @@ export default function MyAmbulanceRequests() {
                   <div className="flex items-start space-x-3">
                     <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
                     <div>
-                      <div className="font-medium text-gray-900">Pickup Address</div>
-                      <div className="text-gray-600 text-sm">{request.pickup_address}</div>
+                      <div className="font-medium text-gray-900">
+                        Pickup Address
+                      </div>
+                      <div className="text-gray-600 text-sm">
+                        {request.pickup_address}
+                      </div>
                     </div>
                   </div>
 
@@ -311,8 +376,12 @@ export default function MyAmbulanceRequests() {
                     <div className="flex items-start space-x-3">
                       <MapPin className="w-4 h-4 text-blue-500 mt-0.5" />
                       <div>
-                        <div className="font-medium text-gray-900">Destination</div>
-                        <div className="text-gray-600 text-sm">{request.destination_address}</div>
+                        <div className="font-medium text-gray-900">
+                          Destination
+                        </div>
+                        <div className="text-gray-600 text-sm">
+                          {request.destination_address}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -321,8 +390,12 @@ export default function MyAmbulanceRequests() {
                   <div className="flex items-center space-x-3">
                     <Phone className="w-4 h-4 text-gray-500" />
                     <div>
-                      <span className="font-medium text-gray-900">Contact: </span>
-                      <span className="text-gray-600">{request.contact_number}</span>
+                      <span className="font-medium text-gray-900">
+                        Contact:{" "}
+                      </span>
+                      <span className="text-gray-600">
+                        {request.contact_number}
+                      </span>
                     </div>
                   </div>
 
@@ -333,19 +406,29 @@ export default function MyAmbulanceRequests() {
                       <div className="bg-blue-50 p-3 rounded-lg">
                         <div className="flex items-center space-x-2 mb-2">
                           <User className="w-4 h-4 text-blue-600" />
-                          <span className="font-medium text-blue-900">Assigned Staff</span>
+                          <span className="font-medium text-blue-900">
+                            Assigned Staff
+                          </span>
                         </div>
                         <div className="space-y-1">
-                          <div className="text-blue-800 font-medium">{request.assigned_staff_name}</div>
+                          <div className="text-blue-800 font-medium">
+                            {request.assigned_staff_name}
+                          </div>
                           {request.assigned_staff_phone && (
                             <div className="flex items-center space-x-2">
                               <Phone className="w-3 h-3 text-blue-600" />
-                              <span className="text-blue-700 text-sm">{request.assigned_staff_phone}</span>
+                              <span className="text-blue-700 text-sm">
+                                {request.assigned_staff_phone}
+                              </span>
                               <Button
                                 size="sm"
                                 variant="outline"
                                 className="h-6 px-2 text-xs"
-                                onClick={() => window.open(`tel:${request.assigned_staff_phone}`)}
+                                onClick={() =>
+                                  window.open(
+                                    `tel:${request.assigned_staff_phone}`,
+                                  )
+                                }
                               >
                                 Call
                               </Button>
@@ -363,7 +446,9 @@ export default function MyAmbulanceRequests() {
                       <div className="bg-gray-50 p-3 rounded-lg">
                         <div className="flex items-center space-x-2 mb-2">
                           <FileText className="w-4 h-4 text-gray-600" />
-                          <span className="font-medium text-gray-900">Staff Notes</span>
+                          <span className="font-medium text-gray-900">
+                            Staff Notes
+                          </span>
                         </div>
                         <p className="text-gray-700 text-sm">{request.notes}</p>
                       </div>
@@ -373,20 +458,36 @@ export default function MyAmbulanceRequests() {
                   {/* Status Progress */}
                   <div className="mt-4">
                     <div className="flex items-center space-x-4">
-                      <div className={`flex items-center space-x-2 ${['pending', 'assigned', 'on_the_way', 'completed'].includes(request.status) ? 'text-blue-600' : 'text-gray-400'}`}>
-                        <div className={`w-2 h-2 rounded-full ${request.status === 'pending' || request.status === 'assigned' || request.status === 'on_the_way' || request.status === 'completed' ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                      <div
+                        className={`flex items-center space-x-2 ${["pending", "assigned", "on_the_way", "completed"].includes(request.status) ? "text-blue-600" : "text-gray-400"}`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${request.status === "pending" || request.status === "assigned" || request.status === "on_the_way" || request.status === "completed" ? "bg-blue-600" : "bg-gray-300"}`}
+                        ></div>
                         <span className="text-xs font-medium">Requested</span>
                       </div>
-                      <div className={`flex items-center space-x-2 ${['assigned', 'on_the_way', 'completed'].includes(request.status) ? 'text-blue-600' : 'text-gray-400'}`}>
-                        <div className={`w-2 h-2 rounded-full ${request.status === 'assigned' || request.status === 'on_the_way' || request.status === 'completed' ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+                      <div
+                        className={`flex items-center space-x-2 ${["assigned", "on_the_way", "completed"].includes(request.status) ? "text-blue-600" : "text-gray-400"}`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${request.status === "assigned" || request.status === "on_the_way" || request.status === "completed" ? "bg-blue-600" : "bg-gray-300"}`}
+                        ></div>
                         <span className="text-xs font-medium">Assigned</span>
                       </div>
-                      <div className={`flex items-center space-x-2 ${['on_the_way', 'completed'].includes(request.status) ? 'text-orange-600' : 'text-gray-400'}`}>
-                        <div className={`w-2 h-2 rounded-full ${request.status === 'on_the_way' || request.status === 'completed' ? 'bg-orange-600' : 'bg-gray-300'}`}></div>
+                      <div
+                        className={`flex items-center space-x-2 ${["on_the_way", "completed"].includes(request.status) ? "text-orange-600" : "text-gray-400"}`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${request.status === "on_the_way" || request.status === "completed" ? "bg-orange-600" : "bg-gray-300"}`}
+                        ></div>
                         <span className="text-xs font-medium">On The Way</span>
                       </div>
-                      <div className={`flex items-center space-x-2 ${request.status === 'completed' ? 'text-green-600' : 'text-gray-400'}`}>
-                        <div className={`w-2 h-2 rounded-full ${request.status === 'completed' ? 'bg-green-600' : 'bg-gray-300'}`}></div>
+                      <div
+                        className={`flex items-center space-x-2 ${request.status === "completed" ? "text-green-600" : "text-gray-400"}`}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${request.status === "completed" ? "bg-green-600" : "bg-gray-300"}`}
+                        ></div>
                         <span className="text-xs font-medium">Completed</span>
                       </div>
                     </div>

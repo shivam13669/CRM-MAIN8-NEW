@@ -39,18 +39,18 @@ import { authApi } from "../lib/api";
 export default function PatientProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  
+
   // Get basic data from localStorage, rest will be empty until user fills them
-  const userName = localStorage.getItem('userName') || '';
-  const userEmail = localStorage.getItem('userEmail') || '';
-  const userPhone = localStorage.getItem('userPhone') || '';
-  
+  const userName = localStorage.getItem("userName") || "";
+  const userEmail = localStorage.getItem("userEmail") || "";
+  const userPhone = localStorage.getItem("userPhone") || "";
+
   const [profileData, setProfileData] = useState({
     // Basic info from signup - these will be populated
     name: userName,
     email: userEmail,
     phone: userPhone,
-    
+
     // Fields that will be empty initially (not asked during signup)
     dateOfBirth: "",
     gender: "",
@@ -89,7 +89,7 @@ export default function PatientProfile() {
       const response = await authApi.getProfile();
       if (response.data?.user) {
         const user = response.data.user;
-        setProfileData(prev => ({
+        setProfileData((prev) => ({
           ...prev,
           name: user.full_name || userName,
           email: user.email || userEmail,
@@ -97,7 +97,7 @@ export default function PatientProfile() {
         }));
       }
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error("Error fetching profile:", error);
     } finally {
       setLoading(false);
     }
@@ -120,15 +120,25 @@ export default function PatientProfile() {
   const relations = ["Spouse", "Parent", "Child", "Sibling", "Friend", "Other"];
   const smokingStatuses = ["never", "former", "current"];
   const alcoholOptions = ["never", "rarely", "occasional", "regular"];
-  const exerciseOptions = ["sedentary", "1-2 times a week", "3-4 times a week", "daily", "multiple times daily"];
+  const exerciseOptions = [
+    "sedentary",
+    "1-2 times a week",
+    "3-4 times a week",
+    "daily",
+    "multiple times daily",
+  ];
 
   // Calculate BMI
-  const bmi = profileData.height && profileData.weight 
-    ? (parseInt(profileData.weight) / Math.pow(parseInt(profileData.height) / 100, 2)).toFixed(1)
-    : "N/A";
+  const bmi =
+    profileData.height && profileData.weight
+      ? (
+          parseInt(profileData.weight) /
+          Math.pow(parseInt(profileData.height) / 100, 2)
+        ).toFixed(1)
+      : "N/A";
 
   // Calculate age
-  const age = profileData.dateOfBirth 
+  const age = profileData.dateOfBirth
     ? new Date().getFullYear() - new Date(profileData.dateOfBirth).getFullYear()
     : "N/A";
 
@@ -226,11 +236,19 @@ export default function PatientProfile() {
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Height</span>
-                  <span className="font-medium">{profileData.height ? `${profileData.height} cm` : "Not provided"}</span>
+                  <span className="font-medium">
+                    {profileData.height
+                      ? `${profileData.height} cm`
+                      : "Not provided"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Weight</span>
-                  <span className="font-medium">{profileData.weight ? `${profileData.weight} kg` : "Not provided"}</span>
+                  <span className="font-medium">
+                    {profileData.weight
+                      ? `${profileData.weight} kg`
+                      : "Not provided"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">BMI</span>
@@ -258,15 +276,25 @@ export default function PatientProfile() {
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Exercise</span>
-                  <span className="font-medium text-sm">{profileData.exerciseFrequency || "Not specified"}</span>
+                  <span className="font-medium text-sm">
+                    {profileData.exerciseFrequency || "Not specified"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Diet</span>
-                  <span className="font-medium text-sm">{profileData.dietaryPreferences || "Not specified"}</span>
+                  <span className="font-medium text-sm">
+                    {profileData.dietaryPreferences || "Not specified"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Smoking</span>
-                  <Badge variant={profileData.smokingStatus === "never" ? "secondary" : "destructive"}>
+                  <Badge
+                    variant={
+                      profileData.smokingStatus === "never"
+                        ? "secondary"
+                        : "destructive"
+                    }
+                  >
                     {profileData.smokingStatus}
                   </Badge>
                 </div>
@@ -377,7 +405,10 @@ export default function PatientProfile() {
                     <Select
                       value={profileData.maritalStatus}
                       onValueChange={(value) =>
-                        setProfileData((prev) => ({ ...prev, maritalStatus: value }))
+                        setProfileData((prev) => ({
+                          ...prev,
+                          maritalStatus: value,
+                        }))
                       }
                       disabled={!isEditing}
                     >
@@ -410,7 +441,9 @@ export default function PatientProfile() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="preferredLanguage">Preferred Language</Label>
+                    <Label htmlFor="preferredLanguage">
+                      Preferred Language
+                    </Label>
                     <Input
                       id="preferredLanguage"
                       value={profileData.preferredLanguage}
@@ -585,7 +618,9 @@ export default function PatientProfile() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="currentMedications">Current Medications</Label>
+                  <Label htmlFor="currentMedications">
+                    Current Medications
+                  </Label>
                   <Textarea
                     id="currentMedications"
                     value={profileData.currentMedications}
@@ -619,7 +654,9 @@ export default function PatientProfile() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="familyMedicalHistory">Family Medical History</Label>
+                  <Label htmlFor="familyMedicalHistory">
+                    Family Medical History
+                  </Label>
                   <Textarea
                     id="familyMedicalHistory"
                     value={profileData.familyMedicalHistory}
@@ -656,7 +693,10 @@ export default function PatientProfile() {
                     <Select
                       value={profileData.smokingStatus}
                       onValueChange={(value) =>
-                        setProfileData((prev) => ({ ...prev, smokingStatus: value }))
+                        setProfileData((prev) => ({
+                          ...prev,
+                          smokingStatus: value,
+                        }))
                       }
                       disabled={!isEditing}
                     >
@@ -673,11 +713,16 @@ export default function PatientProfile() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="alcoholConsumption">Alcohol Consumption</Label>
+                    <Label htmlFor="alcoholConsumption">
+                      Alcohol Consumption
+                    </Label>
                     <Select
                       value={profileData.alcoholConsumption}
                       onValueChange={(value) =>
-                        setProfileData((prev) => ({ ...prev, alcoholConsumption: value }))
+                        setProfileData((prev) => ({
+                          ...prev,
+                          alcoholConsumption: value,
+                        }))
                       }
                       disabled={!isEditing}
                     >
@@ -694,11 +739,16 @@ export default function PatientProfile() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="exerciseFrequency">Exercise Frequency</Label>
+                    <Label htmlFor="exerciseFrequency">
+                      Exercise Frequency
+                    </Label>
                     <Select
                       value={profileData.exerciseFrequency}
                       onValueChange={(value) =>
-                        setProfileData((prev) => ({ ...prev, exerciseFrequency: value }))
+                        setProfileData((prev) => ({
+                          ...prev,
+                          exerciseFrequency: value,
+                        }))
                       }
                       disabled={!isEditing}
                     >
@@ -715,7 +765,9 @@ export default function PatientProfile() {
                     </Select>
                   </div>
                   <div>
-                    <Label htmlFor="dietaryPreferences">Dietary Preferences</Label>
+                    <Label htmlFor="dietaryPreferences">
+                      Dietary Preferences
+                    </Label>
                     <Input
                       id="dietaryPreferences"
                       value={profileData.dietaryPreferences}
@@ -780,7 +832,9 @@ export default function PatientProfile() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="emergencyContactRelation">Relationship</Label>
+                    <Label htmlFor="emergencyContactRelation">
+                      Relationship
+                    </Label>
                     <Select
                       value={profileData.emergencyContactRelation}
                       onValueChange={(value) =>
@@ -851,7 +905,9 @@ export default function PatientProfile() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="preferredHospital">Preferred Hospital</Label>
+                    <Label htmlFor="preferredHospital">
+                      Preferred Hospital
+                    </Label>
                     <Input
                       id="preferredHospital"
                       value={profileData.preferredHospital}

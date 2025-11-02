@@ -293,7 +293,9 @@ async function runMigrations(): Promise<void> {
 
     // Migration 2: Add rating column to feedback_complaints table
     try {
-      const feedbackTableInfo = db.exec("PRAGMA table_info(feedback_complaints)");
+      const feedbackTableInfo = db.exec(
+        "PRAGMA table_info(feedback_complaints)",
+      );
       const hasRatingColumn = feedbackTableInfo[0]?.values.some(
         (row) => row[1] === "rating",
       );
