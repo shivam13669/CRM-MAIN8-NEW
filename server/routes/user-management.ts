@@ -53,7 +53,7 @@ export const handleGetUsersByRole: RequestHandler = async (req, res) => {
     }
 
     // Validate role parameter
-    const validRoles = ["doctor", "patient", "staff"];
+    const validRoles = ["doctor", "customer", "staff"];
     if (!validRoles.includes(userRole)) {
       return res.status(400).json({ error: "Invalid role specified" });
     }
