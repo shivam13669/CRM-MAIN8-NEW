@@ -12,22 +12,22 @@ export const handleGetStaffAppointments: RequestHandler = async (req, res) => {
 
     // Get appointments that are related to ambulance requests or general appointments
     const result = db.exec(`
-      SELECT 
+      SELECT
         a.id,
         a.appointment_date,
         a.appointment_time,
         a.reason,
         a.status,
         a.created_at,
-        patient.full_name as patient_name,
-        patient.phone as patient_phone,
+        customer.full_name as customer_name,
+        customer.phone as customer_phone,
         doctor.full_name as doctor_name,
         ar.id as ambulance_request_id,
         CASE WHEN ar.id IS NOT NULL THEN 1 ELSE 0 END as emergency_related
       FROM appointments a
-      JOIN users patient ON a.patient_user_id = patient.id
+      JOIN users customer ON a.customer_user_id = customer.id
       LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
-      LEFT JOIN ambulance_requests ar ON ar.patient_user_id = patient.id
+      LEFT JOIN ambulance_requests ar ON ar.customer_user_id = customer.id
       ORDER BY a.created_at DESC
       LIMIT 100
     `);
@@ -68,16 +68,16 @@ export const handleGetStaffReports: RequestHandler = async (req, res) => {
 
     // Get ambulance requests assigned to this staff member
     const result = db.exec(`
-      SELECT 
+      SELECT
         ar.id,
         ar.status,
         ar.created_at,
         ar.updated_at,
         ar.emergency_type,
         ar.pickup_address,
-        patient.full_name as patient_name
+        customer.full_name as customer_name
       FROM ambulance_requests ar
-      JOIN users patient ON ar.patient_user_id = patient.id
+      JOIN users customer ON ar.customer_user_id = customer.id
       WHERE ar.assigned_staff_id = ?
       AND ar.created_at >= datetime('now', '-${period} days')
       ORDER BY ar.created_at DESC
@@ -170,11 +170,11 @@ export const handleGetStaffFeedback: RequestHandler = async (req, res) => {
         fc.rating,
         fc.admin_response,
         fc.created_at,
-        patient.full_name as patient_name,
-        patient.email as patient_email,
+        customer.full_name as customer_name,
+        customer.email as customer_email,
         admin_u.full_name as admin_name
       FROM feedback_complaints fc
-      JOIN users patient ON fc.patient_user_id = patient.id
+      JOIN users customer ON fc.customer_user_id = customer.id
       LEFT JOIN users admin_u ON fc.admin_user_id = admin_u.id
       WHERE fc.category IN ('staff', 'service')
       OR fc.type = 'complaint'
