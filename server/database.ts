@@ -104,7 +104,7 @@ function createTables(): void {
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
-        role TEXT NOT NULL CHECK(role IN ('admin', 'doctor', 'patient', 'staff')),
+        role TEXT NOT NULL CHECK(role IN ('admin', 'doctor', 'customer', 'staff')),
         full_name TEXT NOT NULL,
         phone TEXT,
         status TEXT DEFAULT 'active' CHECK(status IN ('active', 'suspended')),
@@ -113,9 +113,9 @@ function createTables(): void {
       )
     `);
 
-    // Patients table
+    // Customers table
     db.run(`
-      CREATE TABLE IF NOT EXISTS patients (
+      CREATE TABLE IF NOT EXISTS customers (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         date_of_birth DATE,
