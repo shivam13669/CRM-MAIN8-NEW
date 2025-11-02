@@ -55,8 +55,8 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [patientsRes, doctorsRes, staffRes, appointmentsRes, ambulanceRes, feedbackRes] = await Promise.all([
-        fetch('/api/patients', {
+      const [customersRes, doctorsRes, staffRes, appointmentsRes, ambulanceRes, feedbackRes] = await Promise.all([
+        fetch('/api/customers', {
           headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
         }),
         fetch('/api/doctors', {
