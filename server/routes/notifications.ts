@@ -321,24 +321,30 @@ export const handleGetCustomerNotifications: RequestHandler = async (
     const notifications: Notification[] = [];
 
     // Get customer's ambulance requests (last 30 days)
-    const ambulanceResult = db.exec(
-      `
-      SELECT
-        ar.id,
-        ar.emergency_type,
-        ar.priority,
-        ar.status,
-        ar.created_at,
-        ar.updated_at,
-        staff.full_name as assigned_staff_name
-      FROM ambulance_requests ar
-      LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
-      WHERE ar.customer_user_id = ? AND ar.created_at >= datetime('now', '-30 days')
-      ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
-      LIMIT 20
-    `,
-      [userId],
-    );
+    let ambulanceResult: any = [];
+    try {
+      ambulanceResult = db.exec(
+        `
+        SELECT
+          ar.id,
+          ar.emergency_type,
+          ar.priority,
+          ar.status,
+          ar.created_at,
+          ar.updated_at,
+          staff.full_name as assigned_staff_name
+        FROM ambulance_requests ar
+        LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
+        WHERE ar.customer_user_id = ?
+        ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
+        LIMIT 20
+      `,
+        [userId],
+      );
+    } catch (error) {
+      console.error("Error fetching customer ambulance requests for notifications:", error);
+      ambulanceResult = [];
+    }
 
     if (ambulanceResult.length > 0) {
       const columns = ambulanceResult[0].columns;
