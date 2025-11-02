@@ -27,7 +27,7 @@ interface LayoutProps {
 
 const sidebarItems = [
   { icon: Activity, label: "Dashboard", path: "/admin-dashboard" },
-  { icon: Users, label: "Patients", path: "/patients" },
+  { icon: Users, label: "Customers", path: "/customers" },
   { icon: Users, label: "Doctors", path: "/doctors" },
   { icon: Users, label: "Staff", path: "/staff" },
   { icon: Calendar, label: "Appointments", path: "/appointments" },
