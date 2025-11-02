@@ -91,7 +91,10 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
         LIMIT 5
       `);
     } catch (error) {
-      console.error("Error fetching pending registrations for notifications:", error);
+      console.error(
+        "Error fetching pending registrations for notifications:",
+        error,
+      );
       registrationsResult = [];
     }
 
@@ -197,7 +200,10 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
         LIMIT 10
       `);
     } catch (error) {
-      console.error("Error fetching ambulance requests for notifications:", error);
+      console.error(
+        "Error fetching ambulance requests for notifications:",
+        error,
+      );
       ambulanceResult = [];
     }
 
@@ -342,7 +348,10 @@ export const handleGetCustomerNotifications: RequestHandler = async (
         [userId],
       );
     } catch (error) {
-      console.error("Error fetching customer ambulance requests for notifications:", error);
+      console.error(
+        "Error fetching customer ambulance requests for notifications:",
+        error,
+      );
       ambulanceResult = [];
     }
 
@@ -431,7 +440,10 @@ export const handleGetCustomerNotifications: RequestHandler = async (
         [userId],
       );
     } catch (error) {
-      console.error("Error fetching customer appointments for notifications:", error);
+      console.error(
+        "Error fetching customer appointments for notifications:",
+        error,
+      );
       appointmentsResult = [];
     }
 
