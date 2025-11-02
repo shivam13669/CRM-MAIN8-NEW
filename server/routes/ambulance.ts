@@ -102,7 +102,6 @@ export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
         ar.pickup_address,
         ar.destination_address,
         ar.emergency_type,
-        ar.customer_condition,
         ar.contact_number,
         ar.status,
         ar.priority,
@@ -116,14 +115,7 @@ export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
       FROM ambulance_requests ar
       JOIN users u ON ar.customer_user_id = u.id
       LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
-      ORDER BY
-        CASE ar.priority
-          WHEN 'critical' THEN 1
-          WHEN 'high' THEN 2
-          WHEN 'normal' THEN 3
-          WHEN 'low' THEN 4
-        END,
-        ar.created_at DESC
+      ORDER BY ar.created_at DESC
     `);
 
     let requests = [];
@@ -137,6 +129,22 @@ export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
           request[col] = row[index];
         });
         return request;
+      });
+
+      // Sort by priority manually
+      const priorityOrder = { critical: 1, high: 2, normal: 3, low: 4 };
+      requests.sort((a, b) => {
+        const aPriority =
+          priorityOrder[a.priority as keyof typeof priorityOrder] || 3;
+        const bPriority =
+          priorityOrder[b.priority as keyof typeof priorityOrder] || 3;
+        if (aPriority !== bPriority) {
+          return aPriority - bPriority;
+        }
+        // Then sort by created_at descending
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
       });
     }
 
@@ -209,32 +217,42 @@ export const handleGetCustomerAmbulanceRequests: RequestHandler = async (
       `🔍 Querying ambulance_requests WHERE customer_user_id = ${userId}`,
     );
 
-    const result = db.exec(
-      `
+    // First get all ambulance requests, then filter in memory
+    const allResult = db.exec(`
       SELECT
-        ar.*,
+        ar.id,
+        ar.customer_user_id,
+        ar.pickup_address,
+        ar.destination_address,
+        ar.emergency_type,
+        ar.contact_number,
+        ar.status,
+        ar.priority,
+        ar.assigned_staff_id,
+        ar.notes,
+        ar.created_at,
+        ar.updated_at,
         staff.full_name as assigned_staff_name,
         staff.phone as assigned_staff_phone
       FROM ambulance_requests ar
       LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
-      WHERE ar.customer_user_id = ?
       ORDER BY ar.created_at DESC
-    `,
-      [userId],
-    );
+    `);
 
     let requests = [];
-    if (result.length > 0) {
-      const columns = result[0].columns;
-      const rows = result[0].values;
+    if (allResult.length > 0) {
+      const columns = allResult[0].columns;
+      const rows = allResult[0].values;
 
-      requests = rows.map((row) => {
-        const request: any = {};
-        columns.forEach((col, index) => {
-          request[col] = row[index];
+      requests = rows
+        .filter((row) => row[1] === userId) // Filter by customer_user_id (column index 1)
+        .map((row) => {
+          const request: any = {};
+          columns.forEach((col, index) => {
+            request[col] = row[index];
+          });
+          return request;
         });
-        return request;
-      });
     }
 
     console.log(
@@ -268,11 +286,9 @@ export const handleAssignAmbulanceRequest: RequestHandler = async (
     const { requestId } = req.params;
 
     if (role !== "staff") {
-      return res
-        .status(403)
-        .json({
-          error: "Only staff can assign ambulance requests to themselves",
-        });
+      return res.status(403).json({
+        error: "Only staff can assign ambulance requests to themselves",
+      });
     }
 
     // Check if request exists and is pending
@@ -334,11 +350,9 @@ export const handleUpdateAmbulanceStatus: RequestHandler = async (req, res) => {
     const { status, notes } = req.body;
 
     if (role !== "staff" && role !== "admin") {
-      return res
-        .status(403)
-        .json({
-          error: "Only staff and admin can update ambulance request status",
-        });
+      return res.status(403).json({
+        error: "Only staff and admin can update ambulance request status",
+      });
     }
 
     // Validate status

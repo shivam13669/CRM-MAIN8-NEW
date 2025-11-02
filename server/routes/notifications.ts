@@ -33,11 +33,11 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
           a.id,
           a.created_at,
           a.reason,
-          customer.full_name as customer_name,
-          doctor.full_name as doctor_name
+          u.full_name as customer_name,
+          d.full_name as doctor_name
         FROM appointments a
-        JOIN users customer ON a.customer_user_id = customer.id
-        LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
+        JOIN users u ON a.customer_user_id = u.id
+        LEFT JOIN users d ON a.doctor_user_id = d.id
         WHERE a.status = 'pending'
         ORDER BY a.created_at DESC
         LIMIT 10
@@ -139,9 +139,9 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
           fc.priority,
           fc.status,
           fc.created_at,
-          customer.full_name as customer_name
+          u.full_name as customer_name
         FROM feedback_complaints fc
-        JOIN users customer ON fc.customer_user_id = customer.id
+        JOIN users u ON fc.customer_user_id = u.id
         ORDER BY fc.created_at DESC
         LIMIT 10
       `);
@@ -188,14 +188,13 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
         SELECT
           ar.id,
           ar.emergency_type,
-          ar.customer_condition,
           ar.priority,
           ar.status,
           ar.created_at,
           ar.updated_at,
-          customer.full_name as customer_name
+          u.full_name as customer_name
         FROM ambulance_requests ar
-        JOIN users customer ON ar.customer_user_id = customer.id
+        JOIN users u ON ar.customer_user_id = u.id
         ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
         LIMIT 10
       `);
