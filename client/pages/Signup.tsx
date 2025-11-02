@@ -294,7 +294,7 @@ export default function Signup() {
                     Customer - Book appointments, request services
                   </SelectItem>
                   <SelectItem value="doctor">
-                    Doctor - Manage patients and reports
+                    Doctor - Manage customers and reports
                   </SelectItem>
                   <SelectItem value="staff">
                     Staff - Handle ambulance and complaints
