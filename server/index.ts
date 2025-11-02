@@ -120,19 +120,19 @@ export async function createServer() {
   );
 
   // Data routes (protected)
-  app.get("/api/patients", authenticateToken, handleGetPatients);
+  app.get("/api/customers", authenticateToken, handleGetCustomers);
   app.get("/api/doctors", authenticateToken, handleGetDoctors);
   app.get("/api/dashboard/stats", authenticateToken, handleGetDashboardStats);
 
-  // Ambulance routes (staff + admin for viewing, patients for creating)
+  // Ambulance routes (staff + admin for viewing, customers for creating)
   app.post("/api/ambulance", authenticateToken, handleCreateAmbulanceRequest);
   app.get("/api/ambulance", authenticateToken, handleGetAmbulanceRequests);
-  app.get("/api/ambulance/patient", authenticateToken, handleGetPatientAmbulanceRequests);
+  app.get("/api/ambulance/customer", authenticateToken, handleGetCustomerAmbulanceRequests);
   app.post("/api/ambulance/:requestId/assign", authenticateToken, handleAssignAmbulanceRequest);
   app.put("/api/ambulance/:requestId/status", authenticateToken, handleUpdateAmbulanceStatus);
   app.put("/api/ambulance/requests/:requestId", authenticateToken, handleUpdateAmbulanceRequest);
 
-  // Appointment routes (doctors + admin for viewing, patients for creating)
+  // Appointment routes (doctors + admin for viewing, customers for creating)
   app.post("/api/appointments", authenticateToken, handleCreateAppointment);
   app.get("/api/appointments", authenticateToken, handleGetAppointments);
   app.put(
@@ -143,7 +143,7 @@ export async function createServer() {
   app.get(
     "/api/appointments/my-appointments",
     authenticateToken,
-    handleGetPatientAppointments,
+    handleGetCustomerAppointments,
   );
   app.get("/api/doctors/available", handleGetAvailableDoctors);
 
@@ -195,14 +195,14 @@ export async function createServer() {
   );
   app.get("/api/admin/feedback/stats", authenticateToken, handleGetFeedbackStats);
 
-  // Complaint Feedback routes (patient feedback on closed complaints)
+  // Complaint Feedback routes (customer feedback on closed complaints)
   app.post("/api/complaint/:complaintId/feedback", authenticateToken, handleSubmitComplaintFeedback);
   app.get("/api/complaint/:complaintId/feedback", authenticateToken, handleGetComplaintFeedback);
   app.get("/api/admin/complaint-feedback", authenticateToken, handleGetAllComplaintFeedback);
 
   // Notifications routes
   app.get("/api/notifications", authenticateToken, handleGetNotifications);
-  app.get("/api/notifications/patient", authenticateToken, handleGetPatientNotifications);
+  app.get("/api/notifications/customer", authenticateToken, handleGetCustomerNotifications);
   app.post("/api/notifications/:notificationId/read", authenticateToken, handleMarkNotificationRead);
   app.post("/api/notifications/mark-all-read", authenticateToken, handleMarkAllNotificationsRead);
 
@@ -221,9 +221,9 @@ export async function createServer() {
   app.post("/api/debug/reset-database", handleDatabaseReset);
   app.post("/api/debug/create-pending-table", handleCreatePendingTable);
   app.post("/api/debug/create-test-ambulance", handleCreateTestAmbulanceRequest);
-  app.get("/api/debug/test-patient-ambulance", handleTestPatientAmbulanceRequests);
+  app.get("/api/debug/test-customer-ambulance", handleTestPatientAmbulanceRequests);
   app.get("/api/debug/auth", authenticateToken, handleDebugAuth);
-  app.get("/api/debug/patient-ambulance-with-auth", authenticateToken, handleDebugPatientAmbulanceWithAuth);
+  app.get("/api/debug/customer-ambulance-with-auth", authenticateToken, handleDebugPatientAmbulanceWithAuth);
   app.get("/api/debug/simple-ambulance-test", handleSimpleAmbulanceTest);
 
   return app;
