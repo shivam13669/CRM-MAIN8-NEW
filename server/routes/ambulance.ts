@@ -116,14 +116,7 @@ export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
       FROM ambulance_requests ar
       JOIN users u ON ar.customer_user_id = u.id
       LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
-      ORDER BY
-        CASE ar.priority
-          WHEN 'critical' THEN 1
-          WHEN 'high' THEN 2
-          WHEN 'normal' THEN 3
-          WHEN 'low' THEN 4
-        END,
-        ar.created_at DESC
+      ORDER BY ar.created_at DESC
     `);
 
     let requests = [];
@@ -137,6 +130,18 @@ export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
           request[col] = row[index];
         });
         return request;
+      });
+
+      // Sort by priority manually
+      const priorityOrder = { critical: 1, high: 2, normal: 3, low: 4 };
+      requests.sort((a, b) => {
+        const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] || 3;
+        const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] || 3;
+        if (aPriority !== bPriority) {
+          return aPriority - bPriority;
+        }
+        // Then sort by created_at descending
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
     }
 
