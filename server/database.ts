@@ -224,11 +224,11 @@ function createTables(): void {
       )
     `);
 
-    // Feedback/Complaints table - for patient feedback and complaints
+    // Feedback/Complaints table - for customer feedback and complaints
     db.run(`
       CREATE TABLE IF NOT EXISTS feedback_complaints (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        patient_user_id INTEGER NOT NULL,
+        customer_user_id INTEGER NOT NULL,
         type TEXT NOT NULL CHECK(type IN ('feedback', 'complaint')),
         subject TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -241,7 +241,7 @@ function createTables(): void {
         resolved_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (patient_user_id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (customer_user_id) REFERENCES users (id) ON DELETE CASCADE,
         FOREIGN KEY (admin_user_id) REFERENCES users (id) ON DELETE SET NULL
       )
     `);
