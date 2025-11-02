@@ -29,10 +29,10 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
         a.id,
         a.created_at,
         a.reason,
-        patient.full_name as patient_name,
+        customer.full_name as customer_name,
         doctor.full_name as doctor_name
       FROM appointments a
-      JOIN users patient ON a.patient_user_id = patient.id
+      JOIN users customer ON a.customer_user_id = customer.id
       LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
       WHERE a.created_at >= datetime('now', '-24 hours')
       AND a.status = 'pending'
@@ -57,7 +57,7 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
           id: `appointment_${appointment.id}`,
           type: 'appointment',
           title: 'New Appointment Booking',
-          message: `${appointment.patient_name} booked an appointment ${doctorText} for ${appointment.reason}`,
+          message: `${appointment.customer_name} booked an appointment ${doctorText} for ${appointment.reason}`,
           time: timeAgo,
           unread: true,
           relatedId: appointment.id,
@@ -118,9 +118,9 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
         fc.priority,
         fc.status,
         fc.created_at,
-        patient.full_name as patient_name
+        customer.full_name as customer_name
       FROM feedback_complaints fc
-      JOIN users patient ON fc.patient_user_id = patient.id
+      JOIN users customer ON fc.customer_user_id = customer.id
       WHERE fc.created_at >= datetime('now', '-48 hours')
       ORDER BY fc.created_at DESC
       LIMIT 10
@@ -143,8 +143,8 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
         notifications.push({
           id: `complaint_${complaint.id}`,
           type: 'complaint',
-          title: `New Patient ${typeText}`,
-          message: `${complaint.patient_name} submitted ${complaint.type} about ${complaint.category}${priorityText}: ${complaint.subject}`,
+          title: `New Customer ${typeText}`,
+          message: `${complaint.customer_name} submitted ${complaint.type} about ${complaint.category}${priorityText}: ${complaint.subject}`,
           time: timeAgo,
           unread: complaint.status === 'pending',
           relatedId: complaint.id,
@@ -158,14 +158,14 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
       SELECT
         ar.id,
         ar.emergency_type,
-        ar.patient_condition,
+        ar.customer_condition,
         ar.priority,
         ar.status,
         ar.created_at,
         ar.updated_at,
-        patient.full_name as patient_name
+        customer.full_name as customer_name
       FROM ambulance_requests ar
-      JOIN users patient ON ar.patient_user_id = patient.id
+      JOIN users customer ON ar.customer_user_id = customer.id
       WHERE ar.created_at >= datetime('now', '-12 hours') OR ar.updated_at >= datetime('now', '-12 hours')
       ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
       LIMIT 10
@@ -188,7 +188,7 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
           id: `ambulance_${ambulance.id}`,
           type: 'ambulance',
           title: 'Emergency Ambulance Request',
-          message: `${ambulance.patient_name} requested ambulance for ${ambulance.emergency_type}${urgencyText}`,
+          message: `${ambulance.customer_name} requested ambulance for ${ambulance.emergency_type}${urgencyText}`,
           time: timeAgo,
           unread: ambulance.status === 'pending',
           relatedId: ambulance.id,
@@ -264,18 +264,18 @@ export const handleMarkAllNotificationsRead: RequestHandler = async (req, res) =
   }
 };
 
-// Get notifications for patients (focused on their own requests)
-export const handleGetPatientNotifications: RequestHandler = async (req, res) => {
+// Get notifications for customers (focused on their own requests)
+export const handleGetCustomerNotifications: RequestHandler = async (req, res) => {
   try {
     const { role, userId } = (req as any).user;
 
-    if (role !== 'patient') {
-      return res.status(403).json({ error: 'Only patients can view their notifications' });
+    if (role !== 'customer') {
+      return res.status(403).json({ error: 'Only customers can view their notifications' });
     }
 
     const notifications: Notification[] = [];
 
-    // Get patient's ambulance requests (last 30 days)
+    // Get customer's ambulance requests (last 30 days)
     const ambulanceResult = db.exec(`
       SELECT
         ar.id,
@@ -287,7 +287,7 @@ export const handleGetPatientNotifications: RequestHandler = async (req, res) =>
         staff.full_name as assigned_staff_name
       FROM ambulance_requests ar
       LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
-      WHERE ar.patient_user_id = ? AND ar.created_at >= datetime('now', '-30 days')
+      WHERE ar.customer_user_id = ? AND ar.created_at >= datetime('now', '-30 days')
       ORDER BY COALESCE(ar.updated_at, ar.created_at) DESC
       LIMIT 20
     `, [userId]);
@@ -351,7 +351,7 @@ export const handleGetPatientNotifications: RequestHandler = async (req, res) =>
       });
     }
 
-    // Get patient's appointments (last 14 days)
+    // Get customer's appointments (last 14 days)
     const appointmentsResult = db.exec(`
       SELECT
         a.id,
@@ -364,7 +364,7 @@ export const handleGetPatientNotifications: RequestHandler = async (req, res) =>
         doctor.full_name as doctor_name
       FROM appointments a
       LEFT JOIN users doctor ON a.doctor_user_id = doctor.id
-      WHERE a.patient_user_id = ? AND a.created_at >= datetime('now', '-14 days')
+      WHERE a.customer_user_id = ? AND a.created_at >= datetime('now', '-14 days')
       ORDER BY a.created_at DESC
       LIMIT 10
     `, [userId]);
@@ -408,7 +408,7 @@ export const handleGetPatientNotifications: RequestHandler = async (req, res) =>
     });
 
   } catch (error) {
-    console.error('Get patient notifications error:', error);
+    console.error('Get customer notifications error:', error);
     res.status(500).json({ error: 'Internal server error while fetching notifications' });
   }
 };
