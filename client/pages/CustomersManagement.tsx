@@ -101,7 +101,7 @@ export default function CustomersManagement() {
         console.error('Failed to fetch customers');
       }
     } catch (error) {
-      console.error('Error fetching patients:', error);
+      console.error('Error fetching customers:', error);
     } finally {
       setLoading(false);
     }
