@@ -47,7 +47,7 @@ export async function initDatabase(): Promise<void> {
         await createPendingRegistrationsTable();
       }
     } catch (error) {
-      console.log("⚠️ Table verification failed, creating manually...");
+      console.log("���️ Table verification failed, creating manually...");
       await createPendingRegistrationsTable();
     }
   } catch (error) {
@@ -439,7 +439,7 @@ export async function createUser(user: User): Promise<number> {
 
 export function getUserByEmail(email: string): User | undefined {
   try {
-    console.log(`���� Checking email: ${email}`);
+    console.log(`🔍 Checking email: ${email}`);
 
     if (!db) {
       console.log("❌ Database not initialized");
@@ -774,7 +774,7 @@ export function getDatabaseStats() {
   try {
     const userCount = db.exec("SELECT COUNT(*) as count FROM users")[0]
       .values[0][0];
-    const patientCount = db.exec("SELECT COUNT(*) as count FROM patients")[0]
+    const customerCount = db.exec("SELECT COUNT(*) as count FROM customers")[0]
       .values[0][0];
     const doctorCount = db.exec("SELECT COUNT(*) as count FROM doctors")[0]
       .values[0][0];
@@ -784,13 +784,13 @@ export function getDatabaseStats() {
 
     return {
       users: userCount,
-      patients: patientCount,
+      customers: customerCount,
       doctors: doctorCount,
       appointments: appointmentCount,
     };
   } catch (error) {
     console.error("❌ Error getting database stats:", error);
-    return { users: 0, patients: 0, doctors: 0, appointments: 0 };
+    return { users: 0, customers: 0, doctors: 0, appointments: 0 };
   }
 }
 
