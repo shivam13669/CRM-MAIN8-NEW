@@ -4,7 +4,7 @@ import { db, saveDatabase } from "../database";
 export interface ComplaintFeedback {
   id?: number;
   complaint_id: number;
-  patient_user_id: number;
+  customer_user_id: number;
   rating: number;
   feedback_text?: string;
   created_at?: string;
@@ -32,9 +32,9 @@ export const handleSubmitComplaintFeedback: RequestHandler = async (req, res) =>
 
     // Check if complaint exists and belongs to the user and is closed
     const complaintResult = db.exec(`
-      SELECT id, patient_user_id, status
+      SELECT id, customer_user_id, status
       FROM feedback_complaints
-      WHERE id = ? AND patient_user_id = ?
+      WHERE id = ? AND customer_user_id = ?
     `, [complaintId, userId]);
 
     if (!complaintResult || complaintResult.length === 0 || !complaintResult[0] || complaintResult[0].values.length === 0) {
@@ -55,7 +55,7 @@ export const handleSubmitComplaintFeedback: RequestHandler = async (req, res) =>
     // Check if feedback already exists
     const existingFeedbackResult = db.exec(`
       SELECT id FROM complaint_feedback
-      WHERE complaint_id = ? AND patient_user_id = ?
+      WHERE complaint_id = ? AND customer_user_id = ?
     `, [complaintId, userId]);
 
     console.log(`🔍 Checking existing feedback for complaint ${complaintId} by user ${userId}:`, existingFeedbackResult);
@@ -85,7 +85,7 @@ export const handleSubmitComplaintFeedback: RequestHandler = async (req, res) =>
     try {
       result = db.exec(`
         INSERT INTO complaint_feedback
-        (complaint_id, patient_user_id, rating, feedback_text, created_at)
+        (complaint_id, customer_user_id, rating, feedback_text, created_at)
         VALUES (?, ?, ?, ?, ?)
       `, [complaintId, userId, rating, feedback_text || null, istTimestamp]);
     } catch (dbError: any) {
@@ -127,9 +127,9 @@ export const handleGetComplaintFeedback: RequestHandler = async (req, res) => {
     const result = db.exec(`
       SELECT 
         cf.*,
-        u.full_name as patient_name
+        u.full_name as customer_name
       FROM complaint_feedback cf
-      JOIN users u ON cf.patient_user_id = u.id
+      JOIN users u ON cf.customer_user_id = u.id
       WHERE cf.complaint_id = ?
     `, [complaintId]);
 
@@ -187,11 +187,11 @@ export const handleGetAllComplaintFeedback: RequestHandler = async (req, res) =>
       result = db.exec(`
         SELECT
           cf.*,
-          u.full_name as patient_name,
+          u.full_name as customer_name,
           fc.subject as complaint_subject,
           fc.admin_response
         FROM complaint_feedback cf
-        JOIN users u ON cf.patient_user_id = u.id
+        JOIN users u ON cf.customer_user_id = u.id
         JOIN feedback_complaints fc ON cf.complaint_id = fc.id
         ORDER BY cf.created_at DESC
       `);
