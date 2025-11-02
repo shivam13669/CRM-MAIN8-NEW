@@ -76,19 +76,24 @@ export const handleGetNotifications: RequestHandler = async (req, res) => {
     }
 
     // Get recent pending registrations (last 7 days)
-    const registrationsResult = db.exec(`
-      SELECT 
-        id,
-        full_name,
-        role,
-        specialization,
-        created_at
-      FROM pending_registrations
-      WHERE status = 'pending'
-      AND created_at >= datetime('now', '-7 days')
-      ORDER BY created_at DESC
-      LIMIT 5
-    `);
+    let registrationsResult: any = [];
+    try {
+      registrationsResult = db.exec(`
+        SELECT
+          id,
+          full_name,
+          role,
+          specialization,
+          created_at
+        FROM pending_registrations
+        WHERE status = 'pending'
+        ORDER BY created_at DESC
+        LIMIT 5
+      `);
+    } catch (error) {
+      console.error("Error fetching pending registrations for notifications:", error);
+      registrationsResult = [];
+    }
 
     if (registrationsResult.length > 0) {
       const columns = registrationsResult[0].columns;
