@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PatientLayout } from "../components/PatientLayout";
+import { CustomerLayout } from "../components/CustomerLayout";
 import {
   MessageSquare,
   Star,
@@ -56,8 +56,11 @@ export default function Feedback() {
     rating: 0,
     feedback_text: "",
   });
-  const [selectedComplaintForFeedback, setSelectedComplaintForFeedback] = useState<any>(null);
-  const [submittedFeedbacks, setSubmittedFeedbacks] = useState<{[key: number]: any}>({});
+  const [selectedComplaintForFeedback, setSelectedComplaintForFeedback] =
+    useState<any>(null);
+  const [submittedFeedbacks, setSubmittedFeedbacks] = useState<{
+    [key: number]: any;
+  }>({});
 
   const feedbackTypes = [
     "General Feedback",
@@ -98,18 +101,18 @@ export default function Feedback() {
 
   const fetchSubmittedFeedbacks = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return;
 
       // For each complaint, check if feedback was already submitted
-      const closedComplaints = myFeedback.filter((item: any) =>
-        item.type === 'complaint' && item.status === 'closed'
+      const closedComplaints = myFeedback.filter(
+        (item: any) => item.type === "complaint" && item.status === "closed",
       );
 
       const feedbackPromises = closedComplaints.map(async (item: any) => {
         try {
           const response = await fetch(`/api/complaint/${item.id}/feedback`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           });
 
           if (response.ok) {
@@ -119,15 +122,18 @@ export default function Feedback() {
             }
           }
         } catch (error) {
-          console.error(`Error fetching feedback for complaint ${item.id}:`, error);
+          console.error(
+            `Error fetching feedback for complaint ${item.id}:`,
+            error,
+          );
         }
         return null;
       });
 
       const results = await Promise.all(feedbackPromises);
-      const newSubmittedFeedbacks: {[key: number]: any} = {};
+      const newSubmittedFeedbacks: { [key: number]: any } = {};
 
-      results.forEach(result => {
+      results.forEach((result) => {
         if (result) {
           newSubmittedFeedbacks[result.complaintId] = result.feedback;
         }
@@ -135,29 +141,29 @@ export default function Feedback() {
 
       setSubmittedFeedbacks(newSubmittedFeedbacks);
     } catch (error) {
-      console.error('Error fetching submitted feedbacks:', error);
+      console.error("Error fetching submitted feedbacks:", error);
     }
   };
 
   const fetchMyFeedback = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
-        console.warn('No auth token found, redirecting to login');
-        window.location.href = '/login';
+        console.warn("No auth token found, redirecting to login");
+        window.location.href = "/login";
         return;
       }
 
-      const response = await fetch('/api/feedback/my', {
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await fetch("/api/feedback/my", {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.status === 401 || response.status === 403) {
-        console.warn('Authentication failed, redirecting to login');
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('userName');
-        window.location.href = '/login';
+        console.warn("Authentication failed, redirecting to login");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("userName");
+        window.location.href = "/login";
         return;
       }
 
@@ -165,13 +171,22 @@ export default function Feedback() {
         const data = await response.json();
         setMyFeedback(data.feedback);
       } else {
-        console.error('Failed to fetch feedback:', response.status, response.statusText);
+        console.error(
+          "Failed to fetch feedback:",
+          response.status,
+          response.statusText,
+        );
       }
     } catch (error) {
-      console.error('Error fetching feedback:', error);
+      console.error("Error fetching feedback:", error);
       // Only show error if it's not a network issue due to navigation
-      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        console.warn('Network error, likely due to navigation or server unavailable');
+      if (
+        error instanceof TypeError &&
+        error.message.includes("Failed to fetch")
+      ) {
+        console.warn(
+          "Network error, likely due to navigation or server unavailable",
+        );
       }
     }
   };
@@ -183,37 +198,42 @@ export default function Feedback() {
     }
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
         alert("Please log in to submit feedback.");
-        window.location.href = '/login';
+        window.location.href = "/login";
         return;
       }
 
-      const response = await fetch(`/api/complaint/${selectedComplaintForFeedback.id}/feedback`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+      const response = await fetch(
+        `/api/complaint/${selectedComplaintForFeedback.id}/feedback`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            rating: complaintFeedbackForm.rating,
+            feedback_text: complaintFeedbackForm.feedback_text,
+          }),
         },
-        body: JSON.stringify({
-          rating: complaintFeedbackForm.rating,
-          feedback_text: complaintFeedbackForm.feedback_text
-        })
-      });
+      );
 
       if (response.ok) {
         const responseData = await response.json();
-        alert("Thank you for your feedback! Your rating helps us improve our service.");
+        alert(
+          "Thank you for your feedback! Your rating helps us improve our service.",
+        );
 
         // Add the new feedback to the state immediately
-        setSubmittedFeedbacks(prev => ({
+        setSubmittedFeedbacks((prev) => ({
           ...prev,
           [selectedComplaintForFeedback.id]: {
             rating: complaintFeedbackForm.rating,
             feedback_text: complaintFeedbackForm.feedback_text,
-            created_at: new Date().toISOString()
-          }
+            created_at: new Date().toISOString(),
+          },
         }));
 
         setComplaintFeedbackForm({ rating: 0, feedback_text: "" });
@@ -222,11 +242,15 @@ export default function Feedback() {
         // Refresh the feedback list to get the latest data
         await fetchSubmittedFeedbacks();
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        alert(`Error submitting feedback: ${errorData.error || 'Please try again.'}`);
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: "Unknown error" }));
+        alert(
+          `Error submitting feedback: ${errorData.error || "Please try again."}`,
+        );
       }
     } catch (error) {
-      console.error('Error submitting complaint feedback:', error);
+      console.error("Error submitting complaint feedback:", error);
       alert("Network error. Please check your connection and try again.");
     }
   };
@@ -234,35 +258,35 @@ export default function Feedback() {
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
         alert("Please log in to submit feedback.");
-        window.location.href = '/login';
+        window.location.href = "/login";
         return;
       }
 
-      const response = await fetch('/api/feedback', {
-        method: 'POST',
+      const response = await fetch("/api/feedback", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          type: 'feedback',
+          type: "feedback",
           subject: feedbackForm.title,
           description: feedbackForm.description,
-          category: feedbackForm.type || 'other',
-          priority: 'normal',
-          rating: feedbackForm.rating > 0 ? feedbackForm.rating : undefined
-        })
+          category: feedbackForm.type || "other",
+          priority: "normal",
+          rating: feedbackForm.rating > 0 ? feedbackForm.rating : undefined,
+        }),
       });
 
       if (response.status === 401 || response.status === 403) {
         alert("Your session has expired. Please log in again.");
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('userName');
-        window.location.href = '/login';
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("userName");
+        window.location.href = "/login";
         return;
       }
 
@@ -279,11 +303,15 @@ export default function Feedback() {
         });
         fetchMyFeedback(); // Refresh feedback list
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        alert(`Error submitting feedback: ${errorData.error || 'Please try again.'}`);
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: "Unknown error" }));
+        alert(
+          `Error submitting feedback: ${errorData.error || "Please try again."}`,
+        );
       }
     } catch (error) {
-      console.error('Error submitting feedback:', error);
+      console.error("Error submitting feedback:", error);
       alert("Network error. Please check your connection and try again.");
     }
   };
@@ -291,34 +319,34 @@ export default function Feedback() {
   const handleComplaintSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
         alert("Please log in to submit a complaint.");
-        window.location.href = '/login';
+        window.location.href = "/login";
         return;
       }
 
-      const response = await fetch('/api/feedback', {
-        method: 'POST',
+      const response = await fetch("/api/feedback", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          type: 'complaint',
+          type: "complaint",
           subject: complaintForm.title,
           description: complaintForm.description,
-          category: complaintForm.department || 'other',
-          priority: complaintForm.priority || 'normal'
-        })
+          category: complaintForm.department || "other",
+          priority: complaintForm.priority || "normal",
+        }),
       });
 
       if (response.status === 401 || response.status === 403) {
         alert("Your session has expired. Please log in again.");
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('userName');
-        window.location.href = '/login';
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("userName");
+        window.location.href = "/login";
         return;
       }
 
@@ -335,11 +363,15 @@ export default function Feedback() {
         });
         fetchMyFeedback(); // Refresh feedback list
       } else {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        alert(`Error submitting complaint: ${errorData.error || 'Please try again.'}`);
+        const errorData = await response
+          .json()
+          .catch(() => ({ error: "Unknown error" }));
+        alert(
+          `Error submitting complaint: ${errorData.error || "Please try again."}`,
+        );
       }
     } catch (error) {
-      console.error('Error submitting complaint:', error);
+      console.error("Error submitting complaint:", error);
       alert("Network error. Please check your connection and try again.");
     }
   };
@@ -741,181 +773,222 @@ export default function Feedback() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {previousSubmissions.length > 0 ? previousSubmissions.map((item: any) => (
-                  <div
-                    key={item.id}
-                    className="p-4 border border-gray-200 rounded-lg"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className={`w-3 h-3 rounded-full ${
-                            item.type === "feedback"
-                              ? "bg-blue-500"
-                              : "bg-orange-500"
-                          }`}
-                        ></div>
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {item.subject}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {item.type === "feedback"
-                              ? "Feedback"
-                              : "Complaint"}{" "}
-                            • {new Date(item.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(item.status)}`}
-                        >
-                          {getStatusText(item.status)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Show original description */}
-                    <div className="mb-3">
-                      <p className="text-sm text-gray-600 mb-1"><strong>Description:</strong></p>
-                      <p className="text-sm text-gray-700">{item.description}</p>
-                    </div>
-
-                    {/* Show admin response if available */}
-                    {item.admin_response && (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span className="text-sm font-medium text-blue-900">Admin Response</span>
-                          {item.resolved_at && (
-                            <span className="text-xs text-blue-600">
-                              • {new Date(item.resolved_at).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-blue-800">{item.admin_response}</p>
-                      </div>
-                    )}
-
-                    {/* Show feedback option for closed complaints */}
-                    {item.type === 'complaint' && item.status === 'closed' && (
-                      <div className="mt-3 pt-3 border-t border-gray-200">
-                        {submittedFeedbacks[item.id] ? (
-                          // Show submitted feedback
-                          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <ThumbsUp className="w-4 h-4 text-green-600" />
-                              <span className="text-sm font-medium text-green-900">Your Feedback</span>
-                              <div className="flex space-x-1">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                  <Star
-                                    key={star}
-                                    className={`w-4 h-4 ${
-                                      star <= submittedFeedbacks[item.id].rating
-                                        ? "text-yellow-400 fill-current"
-                                        : "text-gray-300"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
+                {previousSubmissions.length > 0 ? (
+                  previousSubmissions.map((item: any) => (
+                    <div
+                      key={item.id}
+                      className="p-4 border border-gray-200 rounded-lg"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <div
+                            className={`w-3 h-3 rounded-full ${
+                              item.type === "feedback"
+                                ? "bg-blue-500"
+                                : "bg-orange-500"
+                            }`}
+                          ></div>
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {item.subject}
                             </div>
-                            {submittedFeedbacks[item.id].feedback_text && (
-                              <p className="text-sm text-green-800">{submittedFeedbacks[item.id].feedback_text}</p>
+                            <div className="text-sm text-gray-500">
+                              {item.type === "feedback"
+                                ? "Feedback"
+                                : "Complaint"}{" "}
+                              • {new Date(item.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <span
+                            className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(item.status)}`}
+                          >
+                            {getStatusText(item.status)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Show original description */}
+                      <div className="mb-3">
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Description:</strong>
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          {item.description}
+                        </p>
+                      </div>
+
+                      {/* Show admin response if available */}
+                      {item.admin_response && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span className="text-sm font-medium text-blue-900">
+                              Admin Response
+                            </span>
+                            {item.resolved_at && (
+                              <span className="text-xs text-blue-600">
+                                •{" "}
+                                {new Date(
+                                  item.resolved_at,
+                                ).toLocaleDateString()}
+                              </span>
                             )}
                           </div>
-                        ) : (
-                          // Show feedback button
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-blue-600 border-blue-300 hover:bg-blue-50"
-                                onClick={() => {
-                                  setSelectedComplaintForFeedback(item);
-                                  setComplaintFeedbackForm({ rating: 0, feedback_text: "" });
-                                }}
-                                disabled={submittedFeedbacks[item.id]}
-                              >
-                                <ThumbsUp className="w-4 h-4 mr-2" />
-                                Rate Our Response
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-md">
-                              <DialogHeader>
-                                <DialogTitle>Rate Our Response</DialogTitle>
-                                <DialogDescription>
-                                  How satisfied are you with how we handled your complaint?
-                                </DialogDescription>
-                              </DialogHeader>
+                          <p className="text-sm text-blue-800">
+                            {item.admin_response}
+                          </p>
+                        </div>
+                      )}
 
-                              <div className="space-y-4">
-                                <div>
-                                  <label className="block text-sm font-medium mb-2">Rating</label>
+                      {/* Show feedback option for closed complaints */}
+                      {item.type === "complaint" &&
+                        item.status === "closed" && (
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            {submittedFeedbacks[item.id] ? (
+                              // Show submitted feedback
+                              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <ThumbsUp className="w-4 h-4 text-green-600" />
+                                  <span className="text-sm font-medium text-green-900">
+                                    Your Feedback
+                                  </span>
                                   <div className="flex space-x-1">
                                     {[1, 2, 3, 4, 5].map((star) => (
-                                      <button
+                                      <Star
                                         key={star}
-                                        type="button"
-                                        onClick={() => setComplaintFeedbackForm(prev => ({ ...prev, rating: star }))}
-                                        className={`w-8 h-8 ${
-                                          star <= complaintFeedbackForm.rating
-                                            ? "text-yellow-400"
+                                        className={`w-4 h-4 ${
+                                          star <=
+                                          submittedFeedbacks[item.id].rating
+                                            ? "text-yellow-400 fill-current"
                                             : "text-gray-300"
-                                        } hover:text-yellow-400 transition-colors`}
-                                      >
-                                        <Star className="w-full h-full fill-current" />
-                                      </button>
+                                        }`}
+                                      />
                                     ))}
                                   </div>
-                                  <p className="text-sm text-gray-600 mt-1">
-                                    {complaintFeedbackForm.rating === 0
-                                      ? "Please rate our response"
-                                      : complaintFeedbackForm.rating === 1
-                                        ? "Very Poor"
-                                        : complaintFeedbackForm.rating === 2
-                                          ? "Poor"
-                                          : complaintFeedbackForm.rating === 3
-                                            ? "Average"
-                                            : complaintFeedbackForm.rating === 4
-                                              ? "Good"
-                                              : "Excellent"}
+                                </div>
+                                {submittedFeedbacks[item.id].feedback_text && (
+                                  <p className="text-sm text-green-800">
+                                    {submittedFeedbacks[item.id].feedback_text}
                                   </p>
-                                </div>
-
-                                <div>
-                                  <label className="block text-sm font-medium mb-2">
-                                    Additional Comments (Optional)
-                                  </label>
-                                  <Textarea
-                                    value={complaintFeedbackForm.feedback_text}
-                                    onChange={(e) => setComplaintFeedbackForm(prev => ({
-                                      ...prev,
-                                      feedback_text: e.target.value
-                                    }))}
-                                    placeholder="Tell us more about your experience..."
-                                    rows={3}
-                                  />
-                                </div>
-
-                                <div className="flex gap-2 pt-4">
-                                  <Button
-                                    onClick={handleComplaintFeedbackSubmit}
-                                    className="flex-1"
-                                    disabled={complaintFeedbackForm.rating === 0}
-                                  >
-                                    Submit Feedback
-                                  </Button>
-                                </div>
+                                )}
                               </div>
-                            </DialogContent>
-                          </Dialog>
+                            ) : (
+                              // Show feedback button
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                                    onClick={() => {
+                                      setSelectedComplaintForFeedback(item);
+                                      setComplaintFeedbackForm({
+                                        rating: 0,
+                                        feedback_text: "",
+                                      });
+                                    }}
+                                    disabled={submittedFeedbacks[item.id]}
+                                  >
+                                    <ThumbsUp className="w-4 h-4 mr-2" />
+                                    Rate Our Response
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-md">
+                                  <DialogHeader>
+                                    <DialogTitle>Rate Our Response</DialogTitle>
+                                    <DialogDescription>
+                                      How satisfied are you with how we handled
+                                      your complaint?
+                                    </DialogDescription>
+                                  </DialogHeader>
+
+                                  <div className="space-y-4">
+                                    <div>
+                                      <label className="block text-sm font-medium mb-2">
+                                        Rating
+                                      </label>
+                                      <div className="flex space-x-1">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                          <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() =>
+                                              setComplaintFeedbackForm(
+                                                (prev) => ({
+                                                  ...prev,
+                                                  rating: star,
+                                                }),
+                                              )
+                                            }
+                                            className={`w-8 h-8 ${
+                                              star <=
+                                              complaintFeedbackForm.rating
+                                                ? "text-yellow-400"
+                                                : "text-gray-300"
+                                            } hover:text-yellow-400 transition-colors`}
+                                          >
+                                            <Star className="w-full h-full fill-current" />
+                                          </button>
+                                        ))}
+                                      </div>
+                                      <p className="text-sm text-gray-600 mt-1">
+                                        {complaintFeedbackForm.rating === 0
+                                          ? "Please rate our response"
+                                          : complaintFeedbackForm.rating === 1
+                                            ? "Very Poor"
+                                            : complaintFeedbackForm.rating === 2
+                                              ? "Poor"
+                                              : complaintFeedbackForm.rating ===
+                                                  3
+                                                ? "Average"
+                                                : complaintFeedbackForm.rating ===
+                                                    4
+                                                  ? "Good"
+                                                  : "Excellent"}
+                                      </p>
+                                    </div>
+
+                                    <div>
+                                      <label className="block text-sm font-medium mb-2">
+                                        Additional Comments (Optional)
+                                      </label>
+                                      <Textarea
+                                        value={
+                                          complaintFeedbackForm.feedback_text
+                                        }
+                                        onChange={(e) =>
+                                          setComplaintFeedbackForm((prev) => ({
+                                            ...prev,
+                                            feedback_text: e.target.value,
+                                          }))
+                                        }
+                                        placeholder="Tell us more about your experience..."
+                                        rows={3}
+                                      />
+                                    </div>
+
+                                    <div className="flex gap-2 pt-4">
+                                      <Button
+                                        onClick={handleComplaintFeedbackSubmit}
+                                        className="flex-1"
+                                        disabled={
+                                          complaintFeedbackForm.rating === 0
+                                        }
+                                      >
+                                        Submit Feedback
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </div>
                         )}
-                      </div>
-                    )}
-                  </div>
-                )) : (
+                    </div>
+                  ))
+                ) : (
                   <div className="text-center py-8">
                     <p className="text-gray-500">No feedback submitted yet</p>
                   </div>

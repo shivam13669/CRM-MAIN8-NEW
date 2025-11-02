@@ -27,7 +27,7 @@ interface LayoutProps {
 
 const sidebarItems = [
   { icon: Activity, label: "Dashboard", path: "/admin-dashboard" },
-  { icon: Users, label: "Patients", path: "/patients" },
+  { icon: Users, label: "Customers", path: "/customers" },
   { icon: Users, label: "Doctors", path: "/doctors" },
   { icon: Users, label: "Staff", path: "/staff" },
   { icon: Calendar, label: "Appointments", path: "/appointments" },
@@ -69,14 +69,14 @@ export function Layout({ children }: LayoutProps) {
   const fetchNotifications = async () => {
     try {
       setNotificationsLoading(true);
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return;
 
-      const response = await fetch('/api/notifications', {
+      const response = await fetch("/api/notifications", {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {
@@ -84,10 +84,10 @@ export function Layout({ children }: LayoutProps) {
         setNotifications(data.notifications || []);
         setUnreadCount(data.unreadCount || 0);
       } else {
-        console.error('Failed to fetch notifications:', response.status);
+        console.error("Failed to fetch notifications:", response.status);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error("Error fetching notifications:", error);
     } finally {
       setNotificationsLoading(false);
     }
@@ -108,24 +108,24 @@ export function Layout({ children }: LayoutProps) {
   // Mark all notifications as read
   const markAllAsRead = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return;
 
-      const response = await fetch('/api/notifications/mark-all-read', {
-        method: 'POST',
+      const response = await fetch("/api/notifications/mark-all-read", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {
         // Update local state to mark all as read
-        setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+        setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
         setUnreadCount(0);
       }
     } catch (error) {
-      console.error('Error marking notifications as read:', error);
+      console.error("Error marking notifications as read:", error);
     }
   };
 
@@ -134,21 +134,23 @@ export function Layout({ children }: LayoutProps) {
     try {
       // Mark notification as read if it's unread
       if (notification.unread) {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken");
         if (token) {
           await fetch(`/api/notifications/${notification.id}/read`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           });
 
           // Update local state
-          setNotifications(prev =>
-            prev.map(n => n.id === notification.id ? { ...n, unread: false } : n)
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n.id === notification.id ? { ...n, unread: false } : n,
+            ),
           );
-          setUnreadCount(prev => Math.max(0, prev - 1));
+          setUnreadCount((prev) => Math.max(0, prev - 1));
         }
       }
 
@@ -156,34 +158,40 @@ export function Layout({ children }: LayoutProps) {
       setNotificationsOpen(false);
 
       switch (notification.type) {
-        case 'appointment':
-          window.location.href = '/appointments';
+        case "appointment":
+          window.location.href = "/appointments";
           break;
-        case 'registration':
-          window.location.href = '/pending-registrations';
+        case "registration":
+          window.location.href = "/pending-registrations";
           break;
-        case 'complaint':
-          window.location.href = '/feedback-management';
+        case "complaint":
+          window.location.href = "/feedback-management";
           break;
-        case 'ambulance':
-          window.location.href = '/ambulance-management';
+        case "ambulance":
+          window.location.href = "/ambulance-management";
           break;
         default:
-          console.log('Notification clicked:', notification);
+          console.log("Notification clicked:", notification);
       }
     } catch (error) {
-      console.error('Error handling notification click:', error);
+      console.error("Error handling notification click:", error);
     }
   };
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'appointment': return <Calendar className="w-4 h-4 text-blue-600" />;
-      case 'registration': return <UserCheck className="w-4 h-4 text-green-600" />;
-      case 'complaint': return <MessageSquare className="w-4 h-4 text-red-600" />;
-      case 'system': return <Settings className="w-4 h-4 text-gray-600" />;
-      case 'ambulance': return <Truck className="w-4 h-4 text-orange-600" />;
-      default: return <Bell className="w-4 h-4 text-gray-600" />;
+      case "appointment":
+        return <Calendar className="w-4 h-4 text-blue-600" />;
+      case "registration":
+        return <UserCheck className="w-4 h-4 text-green-600" />;
+      case "complaint":
+        return <MessageSquare className="w-4 h-4 text-red-600" />;
+      case "system":
+        return <Settings className="w-4 h-4 text-gray-600" />;
+      case "ambulance":
+        return <Truck className="w-4 h-4 text-orange-600" />;
+      default:
+        return <Bell className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -282,7 +290,7 @@ export function Layout({ children }: LayoutProps) {
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-medium">
-                      {unreadCount > 9 ? '9+' : unreadCount}
+                      {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
                 </Button>
@@ -295,7 +303,9 @@ export function Layout({ children }: LayoutProps) {
                     />
                     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden">
                       <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Notifications
+                        </h3>
                         {unreadCount > 0 && (
                           <span className="text-sm text-blue-600 font-medium">
                             {unreadCount} new
@@ -319,9 +329,11 @@ export function Layout({ children }: LayoutProps) {
                             <div
                               key={notification.id}
                               className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
-                                notification.unread ? 'bg-blue-50' : ''
+                                notification.unread ? "bg-blue-50" : ""
                               }`}
-                              onClick={() => handleNotificationClick(notification)}
+                              onClick={() =>
+                                handleNotificationClick(notification)
+                              }
                             >
                               <div className="flex items-start space-x-3">
                                 <div className="flex-shrink-0 mt-1">
@@ -329,9 +341,13 @@ export function Layout({ children }: LayoutProps) {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center justify-between">
-                                    <p className={`text-sm font-medium text-gray-900 truncate ${
-                                      notification.unread ? 'font-semibold' : ''
-                                    }`}>
+                                    <p
+                                      className={`text-sm font-medium text-gray-900 truncate ${
+                                        notification.unread
+                                          ? "font-semibold"
+                                          : ""
+                                      }`}
+                                    >
                                       {notification.title}
                                     </p>
                                     {notification.unread && (
@@ -399,25 +415,25 @@ export function Layout({ children }: LayoutProps) {
                       onClick={() => setProfileDropdownOpen(false)}
                     />
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Profile
-                    </Link>
-                    <Link
-                      to="/settings"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Settings
-                    </Link>
-                    <div className="border-t border-gray-100"></div>
-                    <Link
-                      to="/login"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Sign out
-                    </Link>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Profile
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Settings
+                      </Link>
+                      <div className="border-t border-gray-100"></div>
+                      <Link
+                        to="/login"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Sign out
+                      </Link>
                     </div>
                   </>
                 )}

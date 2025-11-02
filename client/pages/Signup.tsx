@@ -91,7 +91,7 @@ export default function Signup() {
         username: formData.email.split("@")[0], // Use email prefix as username
         email: formData.email,
         password: formData.password,
-        role: formData.role as "admin" | "doctor" | "patient" | "staff",
+        role: formData.role as "admin" | "doctor" | "customer" | "staff",
         full_name: formData.name,
         phone: formData.phone,
         // Doctor specific fields
@@ -118,13 +118,13 @@ export default function Signup() {
           );
           navigate("/login");
         } else {
-          // Direct login for patients
+          // Direct login for customers
           authUtils.setAuthData(response.data.token, response.data.user);
 
           // Navigate based on role
           switch (response.data.user.role) {
-            case "patient":
-              navigate("/patient-dashboard");
+            case "customer":
+              navigate("/customer-dashboard");
               break;
             default:
               navigate("/dashboard");
@@ -182,26 +182,27 @@ export default function Signup() {
             {error && (
               <div className="mt-4 p-4 bg-red-50 rounded-lg">
                 <p className="text-sm text-red-800">{error}</p>
-                {(error.includes("already exists") || error.includes("already in use")) &&
-                 import.meta.env.DEV && (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const { debugApi } = await import("../lib/debug");
-                      const result = await debugApi.resetDatabase();
-                      if ("message" in result) {
-                        alert(
-                          "Database reset! Please restart server and try again.",
-                        );
-                      } else {
-                        alert("Reset failed: " + result.error);
-                      }
-                    }}
-                    className="mt-2 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                  >
-                    🔄 Reset Database (Dev Only)
-                  </button>
-                )}
+                {(error.includes("already exists") ||
+                  error.includes("already in use")) &&
+                  import.meta.env.DEV && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const { debugApi } = await import("../lib/debug");
+                        const result = await debugApi.resetDatabase();
+                        if ("message" in result) {
+                          alert(
+                            "Database reset! Please restart server and try again.",
+                          );
+                        } else {
+                          alert("Reset failed: " + result.error);
+                        }
+                      }}
+                      className="mt-2 text-xs bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                    >
+                      🔄 Reset Database (Dev Only)
+                    </button>
+                  )}
               </div>
             )}
           </div>
@@ -248,7 +249,7 @@ export default function Signup() {
                 onInput={(e) => {
                   // Only allow numeric input
                   const input = e.target as HTMLInputElement;
-                  input.value = input.value.replace(/[^0-9]/g, '');
+                  input.value = input.value.replace(/[^0-9]/g, "");
                   if (input.value.length > 10) {
                     input.value = input.value.slice(0, 10);
                   }
@@ -290,11 +291,11 @@ export default function Signup() {
                   <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="patient">
-                    Patient - Book appointments, request services
+                  <SelectItem value="customer">
+                    Customer - Book appointments, request services
                   </SelectItem>
                   <SelectItem value="doctor">
-                    Doctor - Manage patients and reports
+                    Doctor - Manage customers and reports
                   </SelectItem>
                   <SelectItem value="staff">
                     Staff - Handle ambulance and complaints

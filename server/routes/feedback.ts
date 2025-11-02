@@ -3,7 +3,7 @@ import { db, saveDatabase } from "../database";
 
 export interface FeedbackComplaint {
   id?: number;
-  patient_user_id: number;
+  customer_user_id: number;
   type: "feedback" | "complaint";
   subject: string;
   description: string;
@@ -70,14 +70,14 @@ export const handleCreateFeedback: RequestHandler = async (req, res) => {
         "Treatment Quality": "doctor",
 
         // Department/Complaint categories
-        "Reception": "service",
-        "Nursing": "staff",
-        "Doctors": "doctor",
-        "Billing": "billing",
-        "Pharmacy": "service",
-        "Laboratory": "service",
-        "Emergency": "service",
-        "Administration": "other",
+        Reception: "service",
+        Nursing: "staff",
+        Doctors: "doctor",
+        Billing: "billing",
+        Pharmacy: "service",
+        Laboratory: "service",
+        Emergency: "service",
+        Administration: "other",
 
         // Complaint types
         "Service Issue": "service",
@@ -85,7 +85,7 @@ export const handleCreateFeedback: RequestHandler = async (req, res) => {
         "Staff Complaint": "staff",
         "Facility Issue": "facility",
         "Treatment Concern": "doctor",
-        "Other": "other",
+        Other: "other",
       };
 
       return categoryMap[inputCategory] || "other";
@@ -96,14 +96,14 @@ export const handleCreateFeedback: RequestHandler = async (req, res) => {
     // Map frontend priority to database-allowed values
     const mapPriority = (inputPriority: string): string => {
       const priorityMap: { [key: string]: string } = {
-        "Low": "low",
-        "Medium": "normal",
-        "High": "high",
-        "Urgent": "urgent",
-        "low": "low",
-        "normal": "normal",
-        "high": "high",
-        "urgent": "urgent"
+        Low: "low",
+        Medium: "normal",
+        High: "high",
+        Urgent: "urgent",
+        low: "low",
+        normal: "normal",
+        high: "high",
+        urgent: "urgent",
       };
 
       return priorityMap[inputPriority] || "normal";
@@ -113,23 +113,37 @@ export const handleCreateFeedback: RequestHandler = async (req, res) => {
 
     // Get current IST timestamp
     const istNow = new Date();
-    const istTime = new Date(istNow.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+    const istTime = new Date(
+      istNow.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+    );
 
     // Format as SQLite datetime: YYYY-MM-DD HH:MM:SS
     const year = istTime.getFullYear();
-    const month = (istTime.getMonth() + 1).toString().padStart(2, '0');
-    const day = istTime.getDate().toString().padStart(2, '0');
-    const hours = istTime.getHours().toString().padStart(2, '0');
-    const minutes = istTime.getMinutes().toString().padStart(2, '0');
-    const seconds = istTime.getSeconds().toString().padStart(2, '0');
+    const month = (istTime.getMonth() + 1).toString().padStart(2, "0");
+    const day = istTime.getDate().toString().padStart(2, "0");
+    const hours = istTime.getHours().toString().padStart(2, "0");
+    const minutes = istTime.getMinutes().toString().padStart(2, "0");
+    const seconds = istTime.getSeconds().toString().padStart(2, "0");
     const istTimestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
     // Insert feedback/complaint
-    const result = db.exec(`
+    const result = db.exec(
+      `
       INSERT INTO feedback_complaints
-      (patient_user_id, type, subject, description, category, priority, rating, status, created_at)
+      (customer_user_id, type, subject, description, category, priority, rating, status, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
-    `, [userId, type, subject, description, mappedCategory, mappedPriority, rating || null, istTimestamp]);
+    `,
+      [
+        userId,
+        type,
+        subject,
+        description,
+        mappedCategory,
+        mappedPriority,
+        rating || null,
+        istTimestamp,
+      ],
+    );
 
     saveDatabase();
 
@@ -165,12 +179,12 @@ export const handleGetAllFeedback: RequestHandler = async (req, res) => {
     const result = db.exec(`
       SELECT 
         fc.*,
-        u.full_name as patient_name,
-        u.email as patient_email,
-        u.phone as patient_phone,
+        u.full_name as customer_name,
+        u.email as customer_email,
+        u.phone as customer_phone,
         admin_u.full_name as admin_name
       FROM feedback_complaints fc
-      JOIN users u ON fc.patient_user_id = u.id
+      JOIN users u ON fc.customer_user_id = u.id
       LEFT JOIN users admin_u ON fc.admin_user_id = admin_u.id
       ORDER BY fc.created_at DESC
     `);
@@ -201,17 +215,20 @@ export const handleGetAllFeedback: RequestHandler = async (req, res) => {
   }
 };
 
-// Get patient's own feedback/complaints
+// Get customer's own feedback/complaints
 export const handleGetMyFeedback: RequestHandler = async (req, res) => {
   try {
     const { userId } = (req as any).user;
 
-    const result = db.exec(`
+    const result = db.exec(
+      `
       SELECT *
       FROM feedback_complaints
-      WHERE patient_user_id = ?
+      WHERE customer_user_id = ?
       ORDER BY created_at DESC
-    `, [userId]);
+    `,
+      [userId],
+    );
 
     if (result.length === 0) {
       return res.json({ feedback: [], total: 0 });
@@ -228,7 +245,9 @@ export const handleGetMyFeedback: RequestHandler = async (req, res) => {
       return item;
     });
 
-    console.log(`📊 Retrieved ${feedback.length} feedback/complaints for user ${userId}`);
+    console.log(
+      `📊 Retrieved ${feedback.length} feedback/complaints for user ${userId}`,
+    );
 
     res.json({ feedback, total: feedback.length });
   } catch (error) {
@@ -244,7 +263,10 @@ export const handleUpdateFeedbackStatus: RequestHandler = async (req, res) => {
   try {
     const { role, userId } = (req as any).user;
     const { feedbackId } = req.params;
-    const { status, admin_response }: { status: string; admin_response?: string } = req.body;
+    const {
+      status,
+      admin_response,
+    }: { status: string; admin_response?: string } = req.body;
 
     if (role !== "admin") {
       return res.status(403).json({
@@ -254,40 +276,55 @@ export const handleUpdateFeedbackStatus: RequestHandler = async (req, res) => {
 
     if (!["pending", "in_review", "resolved", "closed"].includes(status)) {
       return res.status(400).json({
-        error: "Invalid status. Must be pending, in_review, resolved, or closed",
+        error:
+          "Invalid status. Must be pending, in_review, resolved, or closed",
       });
     }
 
     // Get current IST timestamp
     const istNow = new Date();
-    const istTime = new Date(istNow.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+    const istTime = new Date(
+      istNow.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+    );
 
     // Format as SQLite datetime: YYYY-MM-DD HH:MM:SS
     const year = istTime.getFullYear();
-    const month = (istTime.getMonth() + 1).toString().padStart(2, '0');
-    const day = istTime.getDate().toString().padStart(2, '0');
-    const hours = istTime.getHours().toString().padStart(2, '0');
-    const minutes = istTime.getMinutes().toString().padStart(2, '0');
-    const seconds = istTime.getSeconds().toString().padStart(2, '0');
+    const month = (istTime.getMonth() + 1).toString().padStart(2, "0");
+    const day = istTime.getDate().toString().padStart(2, "0");
+    const hours = istTime.getHours().toString().padStart(2, "0");
+    const minutes = istTime.getMinutes().toString().padStart(2, "0");
+    const seconds = istTime.getSeconds().toString().padStart(2, "0");
     const istTimestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-    const updateQuery = status === "resolved"
-      ? `UPDATE feedback_complaints
+    const updateQuery =
+      status === "resolved"
+        ? `UPDATE feedback_complaints
          SET status = ?, admin_response = ?, admin_user_id = ?, resolved_at = ?, updated_at = ?
          WHERE id = ?`
-      : `UPDATE feedback_complaints
+        : `UPDATE feedback_complaints
          SET status = ?, admin_response = ?, admin_user_id = ?, updated_at = ?
          WHERE id = ?`;
 
-    const queryParams = status === "resolved"
-      ? [status, admin_response || null, userId, istTimestamp, istTimestamp, feedbackId]
-      : [status, admin_response || null, userId, istTimestamp, feedbackId];
+    const queryParams =
+      status === "resolved"
+        ? [
+            status,
+            admin_response || null,
+            userId,
+            istTimestamp,
+            istTimestamp,
+            feedbackId,
+          ]
+        : [status, admin_response || null, userId, istTimestamp, feedbackId];
 
     const result = db.exec(updateQuery, queryParams);
     saveDatabase();
 
     // Check if any rows were affected by checking if the feedback exists
-    const checkResult = db.exec("SELECT id FROM feedback_complaints WHERE id = ?", [feedbackId]);
+    const checkResult = db.exec(
+      "SELECT id FROM feedback_complaints WHERE id = ?",
+      [feedbackId],
+    );
     if (checkResult.length === 0 || checkResult[0].values.length === 0) {
       return res.status(404).json({
         error: "Feedback/complaint not found",

@@ -104,7 +104,7 @@ function createTables(): void {
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
-        role TEXT NOT NULL CHECK(role IN ('admin', 'doctor', 'patient', 'staff')),
+        role TEXT NOT NULL CHECK(role IN ('admin', 'doctor', 'customer', 'staff')),
         full_name TEXT NOT NULL,
         phone TEXT,
         status TEXT DEFAULT 'active' CHECK(status IN ('active', 'suspended')),
@@ -113,9 +113,9 @@ function createTables(): void {
       )
     `);
 
-    // Patients table
+    // Customers table
     db.run(`
-      CREATE TABLE IF NOT EXISTS patients (
+      CREATE TABLE IF NOT EXISTS customers (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
         date_of_birth DATE,
@@ -161,7 +161,7 @@ function createTables(): void {
     db.run(`
       CREATE TABLE IF NOT EXISTS appointments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        patient_user_id INTEGER NOT NULL,
+        customer_user_id INTEGER NOT NULL,
         doctor_user_id INTEGER,
         appointment_date DATE NOT NULL,
         appointment_time TEXT NOT NULL,
@@ -171,7 +171,7 @@ function createTables(): void {
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (patient_user_id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (customer_user_id) REFERENCES users (id) ON DELETE CASCADE,
         FOREIGN KEY (doctor_user_id) REFERENCES users (id) ON DELETE SET NULL
       )
     `);
@@ -180,11 +180,11 @@ function createTables(): void {
     db.run(`
       CREATE TABLE IF NOT EXISTS ambulance_requests (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        patient_user_id INTEGER NOT NULL,
+        customer_user_id INTEGER NOT NULL,
         pickup_address TEXT NOT NULL,
         destination_address TEXT NOT NULL,
         emergency_type TEXT NOT NULL,
-        patient_condition TEXT,
+        customer_condition TEXT,
         contact_number TEXT NOT NULL,
         status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'assigned', 'on_the_way', 'completed', 'cancelled')),
         priority TEXT DEFAULT 'normal' CHECK(priority IN ('low', 'normal', 'high', 'critical')),
@@ -192,7 +192,7 @@ function createTables(): void {
         notes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (patient_user_id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (customer_user_id) REFERENCES users (id) ON DELETE CASCADE,
         FOREIGN KEY (assigned_staff_id) REFERENCES users (id) ON DELETE SET NULL
       )
     `);
@@ -224,11 +224,11 @@ function createTables(): void {
       )
     `);
 
-    // Feedback/Complaints table - for patient feedback and complaints
+    // Feedback/Complaints table - for customer feedback and complaints
     db.run(`
       CREATE TABLE IF NOT EXISTS feedback_complaints (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        patient_user_id INTEGER NOT NULL,
+        customer_user_id INTEGER NOT NULL,
         type TEXT NOT NULL CHECK(type IN ('feedback', 'complaint')),
         subject TEXT NOT NULL,
         description TEXT NOT NULL,
@@ -241,23 +241,23 @@ function createTables(): void {
         resolved_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (patient_user_id) REFERENCES users (id) ON DELETE CASCADE,
+        FOREIGN KEY (customer_user_id) REFERENCES users (id) ON DELETE CASCADE,
         FOREIGN KEY (admin_user_id) REFERENCES users (id) ON DELETE SET NULL
       )
     `);
 
-    // Patient feedback on closed complaints - for rating admin response
+    // Customer feedback on closed complaints - for rating admin response
     db.run(`
       CREATE TABLE IF NOT EXISTS complaint_feedback (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         complaint_id INTEGER NOT NULL,
-        patient_user_id INTEGER NOT NULL,
+        customer_user_id INTEGER NOT NULL,
         rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
         feedback_text TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (complaint_id) REFERENCES feedback_complaints (id) ON DELETE CASCADE,
-        FOREIGN KEY (patient_user_id) REFERENCES users (id) ON DELETE CASCADE,
-        UNIQUE(complaint_id, patient_user_id)
+        FOREIGN KEY (customer_user_id) REFERENCES users (id) ON DELETE CASCADE,
+        UNIQUE(complaint_id, customer_user_id)
       )
     `);
 
@@ -293,7 +293,9 @@ async function runMigrations(): Promise<void> {
 
     // Migration 2: Add rating column to feedback_complaints table
     try {
-      const feedbackTableInfo = db.exec("PRAGMA table_info(feedback_complaints)");
+      const feedbackTableInfo = db.exec(
+        "PRAGMA table_info(feedback_complaints)",
+      );
       const hasRatingColumn = feedbackTableInfo[0]?.values.some(
         (row) => row[1] === "rating",
       );
@@ -330,13 +332,13 @@ export interface User {
   username: string;
   email: string;
   password: string;
-  role: "admin" | "doctor" | "patient" | "staff";
+  role: "admin" | "doctor" | "customer" | "staff";
   full_name: string;
   phone?: string;
   created_at?: string;
 }
 
-export interface Patient {
+export interface Customer {
   id?: number;
   user_id: number;
   date_of_birth?: string;
@@ -600,11 +602,11 @@ export async function updateUserPassword(
   }
 }
 
-// Patient operations
-export function createPatient(patient: Patient): number {
+// Customer operations
+export function createCustomer(customer: Customer): number {
   try {
     const stmt = db.prepare(`
-      INSERT INTO patients (
+      INSERT INTO customers (
         user_id, date_of_birth, gender, blood_group, address, 
         emergency_contact, emergency_contact_name, emergency_contact_relation,
         allergies, medical_conditions, current_medications, insurance,
@@ -613,35 +615,35 @@ export function createPatient(patient: Patient): number {
     `);
 
     stmt.run([
-      patient.user_id,
-      patient.date_of_birth || null,
-      patient.gender || null,
-      patient.blood_group || null,
-      patient.address || null,
-      patient.emergency_contact || null,
-      patient.emergency_contact_name || null,
-      patient.emergency_contact_relation || null,
-      patient.allergies || null,
-      patient.medical_conditions || null,
-      patient.current_medications || null,
-      patient.insurance || null,
-      patient.insurance_policy_number || null,
-      patient.occupation || null,
-      patient.height || null,
-      patient.weight || null,
+      customer.user_id,
+      customer.date_of_birth || null,
+      customer.gender || null,
+      customer.blood_group || null,
+      customer.address || null,
+      customer.emergency_contact || null,
+      customer.emergency_contact_name || null,
+      customer.emergency_contact_relation || null,
+      customer.allergies || null,
+      customer.medical_conditions || null,
+      customer.current_medications || null,
+      customer.insurance || null,
+      customer.insurance_policy_number || null,
+      customer.occupation || null,
+      customer.height || null,
+      customer.weight || null,
     ]);
 
     const result = db.exec("SELECT last_insert_rowid() as id");
-    const patientId = result[0].values[0][0];
+    const customerId = result[0].values[0][0];
 
     saveDatabase();
     console.log(
-      `✅ Patient created in SQLite for user_id: ${patient.user_id} - ID: ${patientId}`,
+      `✅ Customer created in SQLite for user_id: ${customer.user_id} - ID: ${customerId}`,
     );
 
-    return patientId as number;
+    return customerId as number;
   } catch (error) {
-    console.error("❌ Error creating patient:", error);
+    console.error("❌ Error creating customer:", error);
     throw error;
   }
 }
@@ -683,25 +685,25 @@ export function createDoctor(doctor: Doctor): number {
   }
 }
 
-// Get all patients (for doctors/admin)
-export function getAllPatients(): any[] {
+// Get all customers (for doctors/admin)
+export function getAllCustomers(): any[] {
   try {
     const result = db.exec(`
-      SELECT 
+      SELECT
         u.id as user_id,
         u.full_name,
         u.email,
         u.phone,
-        p.date_of_birth,
-        p.gender,
-        p.blood_group,
-        p.address,
-        p.medical_conditions,
-        p.height,
-        p.weight,
-        p.created_at
+        c.date_of_birth,
+        c.gender,
+        c.blood_group,
+        c.address,
+        c.medical_conditions,
+        c.height,
+        c.weight,
+        c.created_at
       FROM users u
-      JOIN patients p ON u.id = p.user_id
+      JOIN customers c ON u.id = c.user_id
       ORDER BY u.full_name
     `);
 
@@ -712,18 +714,18 @@ export function getAllPatients(): any[] {
     const columns = result[0].columns;
     const rows = result[0].values;
 
-    const patients = rows.map((row) => {
-      const patient: any = {};
+    const customers = rows.map((row) => {
+      const customer: any = {};
       columns.forEach((col, index) => {
-        patient[col] = row[index];
+        customer[col] = row[index];
       });
-      return patient;
+      return customer;
     });
 
-    console.log(`📊 Retrieved ${patients.length} patients from SQLite`);
-    return patients;
+    console.log(`📊 Retrieved ${customers.length} customers from SQLite`);
+    return customers;
   } catch (error) {
-    console.error("❌ Error getting patients:", error);
+    console.error("❌ Error getting customers:", error);
     return [];
   }
 }
@@ -774,7 +776,7 @@ export function getDatabaseStats() {
   try {
     const userCount = db.exec("SELECT COUNT(*) as count FROM users")[0]
       .values[0][0];
-    const patientCount = db.exec("SELECT COUNT(*) as count FROM patients")[0]
+    const customerCount = db.exec("SELECT COUNT(*) as count FROM customers")[0]
       .values[0][0];
     const doctorCount = db.exec("SELECT COUNT(*) as count FROM doctors")[0]
       .values[0][0];
@@ -784,13 +786,13 @@ export function getDatabaseStats() {
 
     return {
       users: userCount,
-      patients: patientCount,
+      customers: customerCount,
       doctors: doctorCount,
       appointments: appointmentCount,
     };
   } catch (error) {
     console.error("❌ Error getting database stats:", error);
-    return { users: 0, patients: 0, doctors: 0, appointments: 0 };
+    return { users: 0, customers: 0, doctors: 0, appointments: 0 };
   }
 }
 
@@ -1086,7 +1088,7 @@ export async function deleteUser(userId: number): Promise<boolean> {
     }
 
     // Delete related records first
-    db.run("DELETE FROM patients WHERE user_id = ?", [userId]);
+    db.run("DELETE FROM customers WHERE user_id = ?", [userId]);
     db.run("DELETE FROM doctors WHERE user_id = ?", [userId]);
 
     // Delete the user

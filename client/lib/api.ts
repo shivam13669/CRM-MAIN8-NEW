@@ -196,10 +196,10 @@ export interface DashboardStats {
 }
 
 export const dataApi = {
-  async getPatients(): Promise<
-    ApiResponse<{ patients: Patient[]; total: number }>
+  async getCustomers(): Promise<
+    ApiResponse<{ customers: Customer[]; total: number }>
   > {
-    return apiRequest("/patients");
+    return apiRequest("/customers");
   },
 
   async getDoctors(): Promise<

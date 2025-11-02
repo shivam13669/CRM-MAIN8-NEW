@@ -10,7 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import PendingRegistrations from "./pages/PendingRegistrations";
 import TestPendingRegistration from "./pages/TestPendingRegistration";
-import PatientDashboard from "./pages/PatientDashboard";
+import CustomerDashboard from "./pages/CustomerDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import StaffDashboard from "./pages/StaffDashboard";
 import StaffAppointments from "./pages/StaffAppointments";
@@ -26,9 +26,9 @@ import ComplaintFeedbackManagement from "./pages/ComplaintFeedbackManagement";
 import Notifications from "./pages/Notifications";
 import AdminNotifications from "./pages/AdminNotifications";
 import Payments from "./pages/Payments";
-import PatientProfile from "./pages/PatientProfile";
-import Patients from "./pages/Patients";
-import PatientsManagement from "./pages/PatientsManagement";
+import CustomerProfile from "./pages/CustomerProfile";
+import Customers from "./pages/Customers";
+import CustomersManagement from "./pages/CustomersManagement";
 import MyPatients from "./pages/MyPatients";
 import Doctors from "./pages/Doctors";
 import DoctorsManagement from "./pages/DoctorsManagement";
@@ -43,7 +43,7 @@ import Profile from "./pages/Profile";
 import DoctorProfile from "./pages/DoctorProfile";
 import StaffProfile from "./pages/StaffProfile";
 import UserManagement from "./pages/UserManagement";
-import PatientNotifications from "./pages/PatientNotifications";
+import CustomerNotifications from "./pages/CustomerNotifications";
 import DoctorNotifications from "./pages/DoctorNotifications";
 import StaffNotifications from "./pages/StaffNotifications";
 import MyAmbulanceRequests from "./pages/MyAmbulanceRequests";
@@ -77,48 +77,75 @@ function App() {
               element={<PendingRegistrations />}
             />
             <Route path="/test-pending" element={<TestPendingRegistration />} />
-            <Route path="/patients" element={<PatientsManagement />} />
+            <Route path="/customers" element={<CustomersManagement />} />
             <Route path="/doctors" element={<Doctors />} />
             <Route path="/staff" element={<StaffManagement />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/memberships" element={<Memberships />} />
             <Route path="/ambulance" element={<Ambulance />} />
-            <Route path="/ambulance-management" element={<AmbulanceManagement />} />
+            <Route
+              path="/ambulance-management"
+              element={<AmbulanceManagement />}
+            />
             <Route path="/inventory" element={<InventoryManagement />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/user-management" element={<UserManagement />} />
-            <Route path="/feedback-management" element={<FeedbackManagement />} />
-            <Route path="/complaint-feedback-management" element={<ComplaintFeedbackManagement />} />
-            <Route path="/admin-notifications" element={<AdminNotifications />} />
+            <Route
+              path="/feedback-management"
+              element={<FeedbackManagement />}
+            />
+            <Route
+              path="/complaint-feedback-management"
+              element={<ComplaintFeedbackManagement />}
+            />
+            <Route
+              path="/admin-notifications"
+              element={<AdminNotifications />}
+            />
 
-            {/* Patient Dashboard and pages */}
-            <Route path="/patient-dashboard" element={<PatientDashboard />} />
+            {/* Customer Dashboard and pages */}
+            <Route path="/customer-dashboard" element={<CustomerDashboard />} />
             <Route path="/book-appointment" element={<BookAppointment />} />
             <Route path="/request-ambulance" element={<RequestAmbulance />} />
-            <Route path="/my-ambulance-requests" element={<MyAmbulanceRequests />} />
+            <Route
+              path="/my-ambulance-requests"
+              element={<MyAmbulanceRequests />}
+            />
             <Route path="/medical-reports" element={<MedicalReports />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/notifications" element={<Notifications />} />
-            <Route path="/patient-notifications" element={<PatientNotifications />} />
+            <Route
+              path="/customer-notifications"
+              element={<CustomerNotifications />}
+            />
             <Route path="/payments" element={<Payments />} />
-            <Route path="/patient-profile" element={<PatientProfile />} />
+            <Route path="/customer-profile" element={<CustomerProfile />} />
 
             {/* Other role-specific dashboards */}
             <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-            <Route path="/doctor-notifications" element={<DoctorNotifications />} />
+            <Route
+              path="/doctor-notifications"
+              element={<DoctorNotifications />}
+            />
             <Route path="/doctor-profile" element={<DoctorProfile />} />
             <Route path="/staff-dashboard" element={<StaffDashboard />} />
-            <Route path="/staff-ambulance-management" element={<StaffAmbulanceManagement />} />
+            <Route
+              path="/staff-ambulance-management"
+              element={<StaffAmbulanceManagement />}
+            />
             <Route path="/staff-appointments" element={<StaffAppointments />} />
             <Route path="/staff-reports" element={<StaffReports />} />
             <Route path="/staff-feedback" element={<StaffFeedback />} />
             <Route path="/staff-inventory" element={<StaffInventory />} />
-            <Route path="/staff-notifications" element={<StaffNotifications />} />
+            <Route
+              path="/staff-notifications"
+              element={<StaffNotifications />}
+            />
             <Route path="/staff-profile" element={<StaffProfile />} />
             <Route path="/my-patients" element={<MyPatients />} />
-            <Route path="/staff-dashboard" element={<PatientDashboard />} />
+            <Route path="/staff-dashboard" element={<StaffDashboard />} />
 
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />

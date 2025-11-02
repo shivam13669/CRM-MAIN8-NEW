@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PatientLayout } from "../components/PatientLayout";
+import { CustomerLayout } from "../components/CustomerLayout";
 import { Calendar, Clock, User, MapPin, Phone } from "lucide-react";
 import {
   Card,

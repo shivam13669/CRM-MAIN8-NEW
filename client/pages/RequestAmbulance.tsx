@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PatientLayout } from "../components/PatientLayout";
+import { CustomerLayout } from "../components/CustomerLayout";
 import {
   Truck,
   MapPin,
@@ -62,7 +62,7 @@ export default function RequestAmbulance() {
 
   if (isSubmitted) {
     return (
-      <PatientLayout>
+      <CustomerLayout>
         <div className="max-w-2xl mx-auto">
           <Card className="border-green-200 bg-green-50">
             <CardContent className="p-8 text-center">
@@ -114,12 +114,12 @@ export default function RequestAmbulance() {
             </CardContent>
           </Card>
         </div>
-      </PatientLayout>
+      </CustomerLayout>
     );
   }
 
   return (
-    <PatientLayout>
+    <CustomerLayout>
       <div className="space-y-6">
         {/* Emergency Header */}
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
@@ -252,7 +252,7 @@ export default function RequestAmbulance() {
                       minLength={10}
                       onInput={(e) => {
                         const input = e.target as HTMLInputElement;
-                        input.value = input.value.replace(/[^0-9]/g, '');
+                        input.value = input.value.replace(/[^0-9]/g, "");
                         if (input.value.length > 10) {
                           input.value = input.value.slice(0, 10);
                         }
@@ -399,6 +399,6 @@ export default function RequestAmbulance() {
           </div>
         </div>
       </div>
-    </PatientLayout>
+    </CustomerLayout>
   );
 }

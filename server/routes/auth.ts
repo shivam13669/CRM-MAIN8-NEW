@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import {
   createUser,
-  createPatient,
+  createCustomer,
   createDoctor,
   getUserByEmail,
   getUserByPhone,
@@ -11,7 +11,7 @@ import {
   createPendingRegistration,
   getPendingRegistrationByEmail,
   User,
-  Patient,
+  Customer,
   Doctor,
   PendingRegistration,
 } from "../database";
@@ -25,10 +25,10 @@ interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  role: "admin" | "doctor" | "patient" | "staff";
+  role: "admin" | "doctor" | "customer" | "staff";
   full_name: string;
   phone?: string;
-  // Patient specific fields
+  // Customer specific fields
   date_of_birth?: string;
   gender?: "male" | "female" | "other";
   blood_group?: string;
@@ -71,7 +71,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
       role,
       full_name,
       phone,
-      // Patient fields
+      // Customer fields
       date_of_birth,
       gender,
       blood_group,
@@ -116,7 +116,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
       const phoneRegex = /^[0-9]{10}$/;
       if (!phoneRegex.test(phone)) {
         return res.status(400).json({
-          error: "Mobile number must be exactly 10 digits"
+          error: "Mobile number must be exactly 10 digits",
         });
       }
     }
@@ -131,9 +131,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
 
     if (existingUser) {
       console.log(`❌ Registration blocked - email exists: ${email}`);
-      return res
-        .status(409)
-        .json({ error: "Mobile or Email already in use" });
+      return res.status(409).json({ error: "Mobile or Email already in use" });
     }
 
     // Check if phone number already exists (if provided)
@@ -198,8 +196,8 @@ export const handleRegister: RequestHandler = async (req, res) => {
             "Failed to create pending registration: " + pendingError.message,
         });
       }
-    } else if (role === "patient") {
-      // Direct registration for patients (as before)
+    } else if (role === "customer") {
+      // Direct registration for customers (as before)
       const user: User = {
         username,
         email,
@@ -211,8 +209,8 @@ export const handleRegister: RequestHandler = async (req, res) => {
 
       const userId = await createUser(user);
 
-      // Create patient record
-      const patient: Patient = {
+      // Create customer record
+      const customer: Customer = {
         user_id: userId,
         date_of_birth,
         gender,
@@ -228,7 +226,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
         insurance_policy_number,
         occupation,
       };
-      createPatient(patient);
+      createCustomer(customer);
 
       // Generate JWT token for immediate login
       const token = jwt.sign({ userId, email, role, full_name }, JWT_SECRET, {
@@ -236,7 +234,7 @@ export const handleRegister: RequestHandler = async (req, res) => {
       });
 
       res.status(201).json({
-        message: "Patient registered successfully",
+        message: "Customer registered successfully",
         token,
         user: {
           id: userId,
@@ -255,7 +253,9 @@ export const handleRegister: RequestHandler = async (req, res) => {
       if (error.message.includes("username")) {
         return res.status(409).json({ error: "Username already exists" });
       } else if (error.message.includes("email")) {
-        return res.status(409).json({ error: "Mobile or Email already in use" });
+        return res
+          .status(409)
+          .json({ error: "Mobile or Email already in use" });
       }
     }
 
@@ -355,7 +355,8 @@ export const handleForgotPassword: RequestHandler = async (req, res) => {
     if (!user) {
       // Don't reveal if email exists for security reasons
       return res.json({
-        message: "If an account with that email exists, a reset link has been sent."
+        message:
+          "If an account with that email exists, a reset link has been sent.",
       });
     }
 
@@ -371,9 +372,9 @@ export const handleForgotPassword: RequestHandler = async (req, res) => {
 
     // Simulate sending email (in real app, use nodemailer or similar)
     res.json({
-      message: "If an account with that email exists, a reset link has been sent."
+      message:
+        "If an account with that email exists, a reset link has been sent.",
     });
-
   } catch (error) {
     console.error("Forgot password error:", error);
     res.status(500).json({ error: "Internal server error" });

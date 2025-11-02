@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "./ui/button";
 
-interface PatientLayoutProps {
+interface CustomerLayoutProps {
   children: React.ReactNode;
 }
 
@@ -34,18 +34,22 @@ interface Notification {
 }
 
 const sidebarItems = [
-  { icon: Activity, label: "Dashboard", path: "/patient-dashboard" },
+  { icon: Activity, label: "Dashboard", path: "/customer-dashboard" },
   { icon: Calendar, label: "Book Appointment", path: "/book-appointment" },
   { icon: Truck, label: "Ambulance Service", path: "/request-ambulance" },
-  { icon: Truck, label: "My Ambulance Requests", path: "/my-ambulance-requests" },
+  {
+    icon: Truck,
+    label: "My Ambulance Requests",
+    path: "/my-ambulance-requests",
+  },
   { icon: MessageSquare, label: "Feedback & Complaints", path: "/feedback" },
   { icon: FileText, label: "Medical Reports", path: "/medical-reports" },
   { icon: CreditCard, label: "Payments", path: "/payments" },
-  { icon: User, label: "Profile", path: "/patient-profile" },
+  { icon: User, label: "Profile", path: "/customer-profile" },
   { icon: Settings, label: "Settings", path: "/settings" },
 ];
 
-export function PatientLayout({ children }: PatientLayoutProps) {
+export function CustomerLayout({ children }: CustomerLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -53,20 +57,20 @@ export function PatientLayout({ children }: PatientLayoutProps) {
   const [notificationsLoading, setNotificationsLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
-  const userName = localStorage.getItem("userName") || "Patient";
+  const userName = localStorage.getItem("userName") || "Customer";
 
   // Fetch notifications from API
   const fetchNotifications = async () => {
     try {
       setNotificationsLoading(true);
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return;
 
-      const response = await fetch('/api/notifications/patient', {
+      const response = await fetch("/api/notifications/customer", {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {
@@ -74,10 +78,10 @@ export function PatientLayout({ children }: PatientLayoutProps) {
         setNotifications(data.notifications || []);
         setUnreadCount(data.unreadCount || 0);
       } else {
-        console.error('Failed to fetch notifications:', response.status);
+        console.error("Failed to fetch notifications:", response.status);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error("Error fetching notifications:", error);
     } finally {
       setNotificationsLoading(false);
     }
@@ -97,11 +101,16 @@ export function PatientLayout({ children }: PatientLayoutProps) {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'appointment': return <Calendar className="w-4 h-4 text-blue-600" />;
-      case 'report': return <FileText className="w-4 h-4 text-green-600" />;
-      case 'feedback': return <MessageSquare className="w-4 h-4 text-purple-600" />;
-      case 'ambulance': return <Truck className="w-4 h-4 text-orange-600" />;
-      default: return <Bell className="w-4 h-4 text-gray-600" />;
+      case "appointment":
+        return <Calendar className="w-4 h-4 text-blue-600" />;
+      case "report":
+        return <FileText className="w-4 h-4 text-green-600" />;
+      case "feedback":
+        return <MessageSquare className="w-4 h-4 text-purple-600" />;
+      case "ambulance":
+        return <Truck className="w-4 h-4 text-orange-600" />;
+      default:
+        return <Bell className="w-4 h-4 text-gray-600" />;
     }
   };
 
@@ -110,21 +119,23 @@ export function PatientLayout({ children }: PatientLayoutProps) {
     try {
       // Mark notification as read if it's unread
       if (notification.unread) {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken");
         if (token) {
           await fetch(`/api/notifications/${notification.id}/read`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           });
 
           // Update local state
-          setNotifications(prev =>
-            prev.map(n => n.id === notification.id ? { ...n, unread: false } : n)
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n.id === notification.id ? { ...n, unread: false } : n,
+            ),
           );
-          setUnreadCount(prev => Math.max(0, prev - 1));
+          setUnreadCount((prev) => Math.max(0, prev - 1));
         }
       }
 
@@ -132,47 +143,47 @@ export function PatientLayout({ children }: PatientLayoutProps) {
       setNotificationsOpen(false);
 
       switch (notification.type) {
-        case 'appointment':
-          window.location.href = '/book-appointment';
+        case "appointment":
+          window.location.href = "/book-appointment";
           break;
-        case 'report':
-          window.location.href = '/medical-reports';
+        case "report":
+          window.location.href = "/medical-reports";
           break;
-        case 'feedback':
-          window.location.href = '/feedback';
+        case "feedback":
+          window.location.href = "/feedback";
           break;
-        case 'ambulance':
-          window.location.href = '/my-ambulance-requests';
+        case "ambulance":
+          window.location.href = "/my-ambulance-requests";
           break;
         default:
-          console.log('Notification clicked:', notification);
+          console.log("Notification clicked:", notification);
       }
     } catch (error) {
-      console.error('Error handling notification click:', error);
+      console.error("Error handling notification click:", error);
     }
   };
 
   // Mark all notifications as read
   const markAllAsRead = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return;
 
-      const response = await fetch('/api/notifications/mark-all-read', {
-        method: 'POST',
+      const response = await fetch("/api/notifications/mark-all-read", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {
         // Update local state to mark all as read
-        setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+        setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
         setUnreadCount(0);
       }
     } catch (error) {
-      console.error('Error marking notifications as read:', error);
+      console.error("Error marking notifications as read:", error);
     }
   };
 
@@ -297,7 +308,7 @@ export function PatientLayout({ children }: PatientLayoutProps) {
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-medium">
-                      {unreadCount > 9 ? '9+' : unreadCount}
+                      {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                   )}
                 </Button>
@@ -310,7 +321,9 @@ export function PatientLayout({ children }: PatientLayoutProps) {
                     />
                     <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-hidden">
                       <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Notifications
+                        </h3>
                         {unreadCount > 0 && (
                           <span className="text-sm text-blue-600 font-medium">
                             {unreadCount} new
@@ -334,9 +347,11 @@ export function PatientLayout({ children }: PatientLayoutProps) {
                             <div
                               key={notification.id}
                               className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
-                                notification.unread ? 'bg-blue-50' : ''
+                                notification.unread ? "bg-blue-50" : ""
                               }`}
-                              onClick={() => handleNotificationClick(notification)}
+                              onClick={() =>
+                                handleNotificationClick(notification)
+                              }
                             >
                               <div className="flex items-start space-x-3">
                                 <div className="flex-shrink-0 mt-1">
@@ -344,9 +359,13 @@ export function PatientLayout({ children }: PatientLayoutProps) {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center justify-between">
-                                    <p className={`text-sm font-medium text-gray-900 truncate ${
-                                      notification.unread ? 'font-semibold' : ''
-                                    }`}>
+                                    <p
+                                      className={`text-sm font-medium text-gray-900 truncate ${
+                                        notification.unread
+                                          ? "font-semibold"
+                                          : ""
+                                      }`}
+                                    >
                                       {notification.title}
                                     </p>
                                     {notification.unread && (
@@ -414,31 +433,31 @@ export function PatientLayout({ children }: PatientLayoutProps) {
                       onClick={() => setProfileDropdownOpen(false)}
                     />
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                    <Link
-                      to="/patient-profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      My Profile
-                    </Link>
-                    <Link
-                      to="/settings"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Settings
-                    </Link>
-                    <Link
-                      to="/medical-reports"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Medical Records
-                    </Link>
-                    <div className="border-t border-gray-100"></div>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                    >
-                      Sign out
-                    </button>
+                      <Link
+                        to="/patient-profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        My Profile
+                      </Link>
+                      <Link
+                        to="/settings"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Settings
+                      </Link>
+                      <Link
+                        to="/medical-reports"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Medical Records
+                      </Link>
+                      <div className="border-t border-gray-100"></div>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      >
+                        Sign out
+                      </button>
                     </div>
                   </>
                 )}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PatientLayout } from "../components/PatientLayout";
+import { CustomerLayout } from "../components/CustomerLayout";
 import { FileText, Download, Eye, Calendar, User, Search } from "lucide-react";
 import {
   Card,

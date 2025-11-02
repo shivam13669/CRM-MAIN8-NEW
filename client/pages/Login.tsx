@@ -58,8 +58,8 @@ export default function Login() {
 
         // Navigate based on role
         switch (response.data.user.role) {
-          case "patient":
-            navigate("/patient-dashboard");
+          case "customer":
+            navigate("/customer-dashboard");
             break;
           case "doctor":
             navigate("/doctor-dashboard");

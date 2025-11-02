@@ -23,12 +23,12 @@ export default function Dashboard() {
 
   const stats = [
     {
-      title: "Total Patients",
+      title: "Total Customers",
       value: "2,543",
       change: "+12%",
       changeType: "positive" as const,
       icon: Users,
-      description: "Active patients in system",
+      description: "Active customers in system",
     },
     {
       title: "Appointments Today",
@@ -58,31 +58,31 @@ export default function Dashboard() {
 
   const recentAppointments = [
     {
-      patient: "Sarah Johnson",
+      customer: "Sarah Johnson",
       doctor: "Dr. Smith",
       time: "9:00 AM",
       status: "confirmed",
     },
     {
-      patient: "Michael Brown",
+      customer: "Michael Brown",
       doctor: "Dr. Wilson",
       time: "10:30 AM",
       status: "pending",
     },
     {
-      patient: "Emily Davis",
+      customer: "Emily Davis",
       doctor: "Dr. Jones",
       time: "2:00 PM",
       status: "confirmed",
     },
     {
-      patient: "James Miller",
+      customer: "James Miller",
       doctor: "Dr. Taylor",
       time: "3:30 PM",
       status: "cancelled",
     },
     {
-      patient: "Lisa Garcia",
+      customer: "Lisa Garcia",
       doctor: "Dr. Anderson",
       time: "4:00 PM",
       status: "confirmed",
@@ -190,7 +190,7 @@ export default function Dashboard() {
                     >
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">
-                          {appointment.patient}
+                          {appointment.customer}
                         </div>
                         <div className="text-sm text-gray-500">
                           with {appointment.doctor}
@@ -251,13 +251,13 @@ export default function Dashboard() {
               <CardContent className="space-y-3">
                 <button
                   className="w-full p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                  onClick={() => navigate("/patients")}
+                  onClick={() => navigate("/customers")}
                 >
                   <div className="font-medium text-gray-900">
-                    Add New Patient
+                    Add New Customer
                   </div>
                   <div className="text-sm text-gray-500">
-                    Register a new patient
+                    Register a new customer
                   </div>
                 </button>
                 <button
@@ -301,7 +301,7 @@ export default function Dashboard() {
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">94%</div>
                 <div className="text-sm text-gray-500">
-                  Patient Satisfaction
+                  Customer Satisfaction
                 </div>
               </div>
               <div className="text-center">

@@ -55,65 +55,92 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const [patientsRes, doctorsRes, staffRes, appointmentsRes, ambulanceRes, feedbackRes] = await Promise.all([
-        fetch('/api/patients', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+      const [
+        customersRes,
+        doctorsRes,
+        staffRes,
+        appointmentsRes,
+        ambulanceRes,
+        feedbackRes,
+      ] = await Promise.all([
+        fetch("/api/customers", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
         }),
-        fetch('/api/doctors', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+        fetch("/api/doctors", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
         }),
-        fetch('/api/admin/users/staff', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+        fetch("/api/admin/users/staff", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
         }),
-        fetch('/api/appointments', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+        fetch("/api/appointments", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
         }),
-        fetch('/api/ambulance', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+        fetch("/api/ambulance", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
         }),
-        fetch('/api/admin/feedback', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
-        })
+        fetch("/api/admin/feedback", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          },
+        }),
       ]);
 
-      const patients = patientsRes.ok ? (await patientsRes.json()).patients : [];
+      const customers = customersRes.ok
+        ? (await customersRes.json()).customers
+        : [];
       const doctors = doctorsRes.ok ? (await doctorsRes.json()).doctors : [];
       const staff = staffRes.ok ? (await staffRes.json()).users : [];
-      const appointments = appointmentsRes.ok ? (await appointmentsRes.json()).appointments : [];
-      const ambulanceRequests = ambulanceRes.ok ? (await ambulanceRes.json()).requests : [];
-      const feedback = feedbackRes.ok ? (await feedbackRes.json()).feedback : [];
+      const appointments = appointmentsRes.ok
+        ? (await appointmentsRes.json()).appointments
+        : [];
+      const ambulanceRequests = ambulanceRes.ok
+        ? (await ambulanceRes.json()).requests
+        : [];
+      const feedback = feedbackRes.ok
+        ? (await feedbackRes.json()).feedback
+        : [];
 
-      const today = new Date().toISOString().split('T')[0];
-      const todayAppointments = appointments.filter((apt: any) =>
-        apt.appointment_date === today
+      const today = new Date().toISOString().split("T")[0];
+      const todayAppointments = appointments.filter(
+        (apt: any) => apt.appointment_date === today,
       ).length;
 
-      const pendingAmbulanceRequests = ambulanceRequests.filter((req: any) =>
-        req.status === 'pending'
+      const pendingAmbulanceRequests = ambulanceRequests.filter(
+        (req: any) => req.status === "pending",
       ).length;
 
-      const pendingFeedback = feedback.filter((fb: any) =>
-        fb.status === 'pending'
+      const pendingFeedback = feedback.filter(
+        (fb: any) => fb.status === "pending",
       ).length;
 
       setData({
-        patients,
+        customers,
         doctors,
         staff,
         appointments,
         ambulanceRequests,
         feedback,
         stats: {
-          totalPatients: patients.length,
+          totalCustomers: customers.length,
           totalDoctors: doctors.length,
           totalStaff: staff.length,
           todayAppointments,
           pendingAmbulanceRequests,
-          pendingFeedback
-        }
+          pendingFeedback,
+        },
       });
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error("Error fetching dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -131,13 +158,13 @@ export default function AdminDashboard() {
 
   const stats = [
     {
-      title: "Total Patients",
-      value: data?.stats.totalPatients.toString() || "0",
+      title: "Total Customers",
+      value: data?.stats.totalCustomers.toString() || "0",
       change: "+New signups",
       changeType: "positive" as const,
       icon: Users,
-      description: "Registered patients",
-      onClick: () => navigate("/patients")
+      description: "Registered customers",
+      onClick: () => navigate("/customers"),
     },
     {
       title: "Total Doctors",
@@ -146,7 +173,7 @@ export default function AdminDashboard() {
       changeType: "positive" as const,
       icon: Stethoscope,
       description: "Healthcare providers",
-      onClick: () => navigate("/doctors")
+      onClick: () => navigate("/doctors"),
     },
     {
       title: "Staff Members",
@@ -155,7 +182,7 @@ export default function AdminDashboard() {
       changeType: "positive" as const,
       icon: UserPlus,
       description: "Active staff",
-      onClick: () => navigate("/staff")
+      onClick: () => navigate("/staff"),
     },
     {
       title: "Today's Appointments",
@@ -164,25 +191,29 @@ export default function AdminDashboard() {
       changeType: "positive" as const,
       icon: Calendar,
       description: "Appointments for today",
-      onClick: () => navigate("/appointments")
+      onClick: () => navigate("/appointments"),
     },
     {
       title: "Pending Ambulance",
       value: data?.stats.pendingAmbulanceRequests.toString() || "0",
       change: "Need attention",
-      changeType: data?.stats.pendingAmbulanceRequests ? "negative" : "positive" as const,
+      changeType: data?.stats.pendingAmbulanceRequests
+        ? "negative"
+        : ("positive" as const),
       icon: Truck,
       description: "Emergency requests",
-      onClick: () => navigate("/ambulance")
+      onClick: () => navigate("/ambulance"),
     },
     {
       title: "Pending Feedback",
       value: data?.stats.pendingFeedback.toString() || "0",
       change: "Need review",
-      changeType: data?.stats.pendingFeedback ? "negative" : "positive" as const,
+      changeType: data?.stats.pendingFeedback
+        ? "negative"
+        : ("positive" as const),
       icon: AlertCircle,
       description: "Feedback & complaints",
-      onClick: () => navigate("/feedback-management")
+      onClick: () => navigate("/feedback-management"),
     },
   ];
 
@@ -229,7 +260,9 @@ export default function AdminDashboard() {
         {/* Page header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Admin Dashboard
+            </h1>
             <p className="text-gray-600 mt-2">
               Complete overview of your healthcare system operations
             </p>
@@ -240,7 +273,7 @@ export default function AdminDashboard() {
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center space-x-2 w-full sm:w-auto"
           >
             <Activity className="w-4 h-4" />
-            <span>{loading ? 'Refreshing...' : 'Refresh Data'}</span>
+            <span>{loading ? "Refreshing..." : "Refresh Data"}</span>
           </button>
         </div>
 
@@ -288,9 +321,7 @@ export default function AdminDashboard() {
                 <Users className="h-5 w-5" />
                 <span>Recent Patients</span>
               </CardTitle>
-              <CardDescription>
-                Newly registered patients
-              </CardDescription>
+              <CardDescription>Newly registered patients</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -314,7 +345,9 @@ export default function AdminDashboard() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500 text-center py-4">No patients registered yet</p>
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    No patients registered yet
+                  </p>
                 )}
               </div>
               <div className="mt-4 text-center">
@@ -335,9 +368,7 @@ export default function AdminDashboard() {
                 <Stethoscope className="h-5 w-5" />
                 <span>Recent Doctors</span>
               </CardTitle>
-              <CardDescription>
-                Healthcare providers
-              </CardDescription>
+              <CardDescription>Healthcare providers</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -361,7 +392,9 @@ export default function AdminDashboard() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500 text-center py-4">No doctors registered yet</p>
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    No doctors registered yet
+                  </p>
                 )}
               </div>
               <div className="mt-4 text-center">
@@ -382,9 +415,7 @@ export default function AdminDashboard() {
                 <UserPlus className="h-5 w-5" />
                 <span>Staff Members</span>
               </CardTitle>
-              <CardDescription>
-                Support team members
-              </CardDescription>
+              <CardDescription>Support team members</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -403,7 +434,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <div className="text-xs text-gray-400">
-                        {staff.status === 'active' ? (
+                        {staff.status === "active" ? (
                           <span className="text-green-600">Active</span>
                         ) : (
                           <span className="text-red-600">Inactive</span>
@@ -412,7 +443,9 @@ export default function AdminDashboard() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500 text-center py-4">No staff members yet</p>
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    No staff members yet
+                  </p>
                 )}
               </div>
               <div className="mt-4 text-center">
@@ -436,9 +469,7 @@ export default function AdminDashboard() {
                 <Clock className="h-5 w-5" />
                 <span>Recent Appointments</span>
               </CardTitle>
-              <CardDescription>
-                Latest appointment bookings
-              </CardDescription>
+              <CardDescription>Latest appointment bookings</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -453,7 +484,8 @@ export default function AdminDashboard() {
                           {appointment.patient_name}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {appointment.appointment_date} at {appointment.appointment_time}
+                          {appointment.appointment_date} at{" "}
+                          {appointment.appointment_time}
                         </div>
                       </div>
                       <span
@@ -464,7 +496,9 @@ export default function AdminDashboard() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500 text-center py-4">No appointments booked yet</p>
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    No appointments booked yet
+                  </p>
                 )}
               </div>
               <div className="mt-4 text-center">
@@ -485,9 +519,7 @@ export default function AdminDashboard() {
                 <Truck className="h-5 w-5" />
                 <span>Emergency Requests</span>
               </CardTitle>
-              <CardDescription>
-                Ambulance service requests
-              </CardDescription>
+              <CardDescription>Ambulance service requests</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -516,7 +548,9 @@ export default function AdminDashboard() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500 text-center py-4">No emergency requests</p>
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    No emergency requests
+                  </p>
                 )}
               </div>
               <div className="mt-4 text-center">
@@ -556,9 +590,9 @@ export default function AdminDashboard() {
                         <div className="flex items-center space-x-2">
                           <span
                             className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              feedback.type === 'complaint'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-blue-100 text-blue-800'
+                              feedback.type === "complaint"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-blue-100 text-blue-800"
                             }`}
                           >
                             {feedback.type}
@@ -584,8 +618,12 @@ export default function AdminDashboard() {
                 ) : (
                   <div className="text-center py-8">
                     <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-sm text-gray-500">No feedback received yet</p>
-                    <p className="text-xs text-gray-400 mt-1">The latest patient feedback will appear here</p>
+                    <p className="text-sm text-gray-500">
+                      No feedback received yet
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      The latest patient feedback will appear here
+                    </p>
                   </div>
                 )}
               </div>
@@ -616,7 +654,9 @@ export default function AdminDashboard() {
               <Activity className="h-5 w-5" />
               <span>System Overview</span>
             </CardTitle>
-            <CardDescription>Real-time healthcare system metrics</CardDescription>
+            <CardDescription>
+              Real-time healthcare system metrics
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-center">
@@ -630,7 +670,9 @@ export default function AdminDashboard() {
                 <div className="text-2xl font-bold text-secondary">
                   {data?.doctors.length || 0}
                 </div>
-                <div className="text-sm text-gray-500">Healthcare Providers</div>
+                <div className="text-sm text-gray-500">
+                  Healthcare Providers
+                </div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-purple-600">
@@ -640,19 +682,26 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-green-600">
-                  {data?.appointments.filter(apt => apt.status === 'confirmed').length || 0}
+                  {data?.appointments.filter(
+                    (apt) => apt.status === "confirmed",
+                  ).length || 0}
                 </div>
-                <div className="text-sm text-gray-500">Confirmed Appointments</div>
+                <div className="text-sm text-gray-500">
+                  Confirmed Appointments
+                </div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-orange-600">
-                  {data?.ambulanceRequests.filter(req => req.status === 'pending').length || 0}
+                  {data?.ambulanceRequests.filter(
+                    (req) => req.status === "pending",
+                  ).length || 0}
                 </div>
                 <div className="text-sm text-gray-500">Pending Emergencies</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-red-600">
-                  {data?.feedback.filter(fb => fb.status === 'pending').length || 0}
+                  {data?.feedback.filter((fb) => fb.status === "pending")
+                    .length || 0}
                 </div>
                 <div className="text-sm text-gray-500">Pending Feedback</div>
               </div>
