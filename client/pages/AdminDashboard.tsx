@@ -131,13 +131,13 @@ export default function AdminDashboard() {
 
   const stats = [
     {
-      title: "Total Patients",
-      value: data?.stats.totalPatients.toString() || "0",
+      title: "Total Customers",
+      value: data?.stats.totalCustomers.toString() || "0",
       change: "+New signups",
       changeType: "positive" as const,
       icon: Users,
-      description: "Registered patients",
-      onClick: () => navigate("/patients")
+      description: "Registered customers",
+      onClick: () => navigate("/customers")
     },
     {
       title: "Total Doctors",
