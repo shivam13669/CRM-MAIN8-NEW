@@ -3,11 +3,11 @@ import { db } from '../database';
 
 export interface AmbulanceRequest {
   id?: number;
-  patient_user_id: number;
+  customer_user_id: number;
   pickup_address: string;
   destination_address: string;
   emergency_type: string;
-  patient_condition?: string;
+  customer_condition?: string;
   contact_number: string;
   status?: string;
   priority?: string;
@@ -16,20 +16,20 @@ export interface AmbulanceRequest {
   created_at?: string;
 }
 
-// Create ambulance request (for patients)
+// Create ambulance request (for customers)
 export const handleCreateAmbulanceRequest: RequestHandler = async (req, res) => {
   try {
     const { userId, role } = (req as any).user;
-    
-    if (role !== 'patient') {
-      return res.status(403).json({ error: 'Only patients can request ambulance services' });
+
+    if (role !== 'customer') {
+      return res.status(403).json({ error: 'Only customers can request ambulance services' });
     }
 
     const {
       pickup_address,
       destination_address,
       emergency_type,
-      patient_condition,
+      customer_condition,
       contact_number,
       priority = 'normal'
     } = req.body;
@@ -41,15 +41,15 @@ export const handleCreateAmbulanceRequest: RequestHandler = async (req, res) => 
     // Insert ambulance request
     db.run(`
       INSERT INTO ambulance_requests (
-        patient_user_id, pickup_address, destination_address, emergency_type,
-        patient_condition, contact_number, priority, status, created_at
+        customer_user_id, pickup_address, destination_address, emergency_type,
+        customer_condition, contact_number, priority, status, created_at
       ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', datetime('now'))
     `, [
       userId,
       pickup_address,
       destination_address,
       emergency_type,
-      patient_condition || null,
+      customer_condition || null,
       contact_number,
       priority
     ]);
@@ -85,19 +85,19 @@ export const handleGetAmbulanceRequests: RequestHandler = async (req, res) => {
         ar.pickup_address,
         ar.destination_address,
         ar.emergency_type,
-        ar.patient_condition,
+        ar.customer_condition,
         ar.contact_number,
         ar.status,
         ar.priority,
         ar.notes,
         ar.created_at,
-        u.full_name as patient_name,
-        u.email as patient_email,
-        u.phone as patient_phone,
+        u.full_name as customer_name,
+        u.email as customer_email,
+        u.phone as customer_phone,
         staff.full_name as assigned_staff_name,
         staff.phone as assigned_staff_phone
       FROM ambulance_requests ar
-      JOIN users u ON ar.patient_user_id = u.id
+      JOIN users u ON ar.customer_user_id = u.id
       LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
       ORDER BY
         CASE ar.priority
@@ -160,22 +160,22 @@ export const handleUpdateAmbulanceRequest: RequestHandler = async (req, res) => 
   }
 };
 
-// Get patient's own ambulance requests
-export const handleGetPatientAmbulanceRequests: RequestHandler = async (req, res) => {
+// Get customer's own ambulance requests
+export const handleGetCustomerAmbulanceRequests: RequestHandler = async (req, res) => {
   try {
-    console.log('🔍 GET /api/ambulance/patient called');
+    console.log('🔍 GET /api/ambulance/customer called');
     console.log('   JWT Data:', (req as any).user);
 
     const { userId, role } = (req as any).user;
 
     console.log(`   userId: ${userId}, role: ${role}`);
 
-    if (role !== 'patient') {
-      console.log(`❌ Access denied: role is ${role}, not patient`);
-      return res.status(403).json({ error: 'Only patients can view their own requests' });
+    if (role !== 'customer') {
+      console.log(`❌ Access denied: role is ${role}, not customer`);
+      return res.status(403).json({ error: 'Only customers can view their own requests' });
     }
 
-    console.log(`🔍 Querying ambulance_requests WHERE patient_user_id = ${userId}`);
+    console.log(`🔍 Querying ambulance_requests WHERE customer_user_id = ${userId}`);
 
     const result = db.exec(`
       SELECT
@@ -184,7 +184,7 @@ export const handleGetPatientAmbulanceRequests: RequestHandler = async (req, res
         staff.phone as assigned_staff_phone
       FROM ambulance_requests ar
       LEFT JOIN users staff ON ar.assigned_staff_id = staff.id
-      WHERE ar.patient_user_id = ?
+      WHERE ar.customer_user_id = ?
       ORDER BY ar.created_at DESC
     `, [userId]);
 
@@ -214,7 +214,7 @@ export const handleGetPatientAmbulanceRequests: RequestHandler = async (req, res
       total: requests.length
     });
   } catch (error) {
-    console.error('Get patient ambulance requests error:', error);
+    console.error('Get customer ambulance requests error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
